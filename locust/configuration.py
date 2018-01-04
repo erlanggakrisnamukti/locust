@@ -198,3 +198,7 @@ class ClientConfiguration:
         except StopIteration:
             return value
 
+    @classmethod
+    def split_parent_child(jsonpath):
+        split_dir = dir(jsonpath)
+        print(split_dir)

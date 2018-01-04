@@ -300,6 +300,21 @@
                         <label for="column_name">Choose column name which has multiple data</label>
                         <ul id="column_name" class="column_name"></ul>
                     </div>
+
+                    <div>
+                        <label for="input type csv">Input type csv</label>
+                        <select id="input_type" name="input_type">
+                            <option value="1">All data</option>
+                            <option value="2">Each row per key</option>
+                        </select>
+                    </div>
+
+                    <div id="key_csv_json">
+                        <label for="Key CSV">Key CSV</label><br>
+                        <input type="text" name="key_csv" id="key_csv" class="val"><br><br>
+                        <label for="Key JSON">Key JSON</label><br>
+                        <input type="text" name="key_json" id="key_json" class="val"><br><br>
+                    </div>
                     <button id="convert_csv_btn">Convert</button>
                 </form>
                 <div style="clear:right;"></div>

@@ -315,11 +315,14 @@ def config_csv():
 
 @app.route("/config/convert_csv", methods=['POST'])
 def convert_csv_to_json():
-    try:
+    # try:
         multiple_data_headers = request.form.getlist('headers_checkbox')
         jsonpath = str(request.form['jsonpath'])
         options = request.form['json_option']
         config_text = request.form["multiple_form_final_json"]
+        print(config_text)
+        input_type = str(request.form["input_type"])
+        print(input_type)
 
         data_json = literal_eval(config_text)
         cc = configuration.ClientConfiguration()

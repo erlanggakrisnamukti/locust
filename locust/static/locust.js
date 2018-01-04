@@ -315,10 +315,19 @@ $('#continue_validation').click(function(event) {
 
 $('#multiple_column_form').submit(function(event) {
     event.preventDefault();
+    $("#multiple_hidden_config_json").val(JSON.stringify(json_editor.get(), null , 4));
     $.post($(this).attr("action"), $(this).serialize(),
         function(response) {
             if (response.success) {
-                location.reload(true);
+                try{
+                    json_editor.set(JSON.parse(response.data));
+                    $(".multiple_column").hide();
+                    $("#column_name").empty();
+                    document.getElementById("import_csv_form").reset();
+                }
+                catch(err){
+                    alert(err.message);
+                }
             }
             else {
                 alert("Convert error : " + response.message);
@@ -427,6 +436,13 @@ $("#not_save_json_btn").click(function(event) {
     $("#edit_config").hide();
     $("#locust_count").focus().select();
     $(".status").removeClass("none");
+});
+
+$("#input_type").on('change', function(){
+    if(this.value == 1)
+        $("#key_csv_json").hide();
+    else
+        $("#key_csv_json").show();
 });
 
 
