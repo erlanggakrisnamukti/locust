@@ -353,6 +353,8 @@ $('#convert_csv_btn').click(function(){
             success: function(response){
                 if (response.success) {
                     try{
+                        if (response.key_pass_status)
+                            alert(response.missing_key_message);
                         json_editor.set(JSON.parse(response.data));
                         $(".multiple_column").hide();
                         $("#column_name").empty();

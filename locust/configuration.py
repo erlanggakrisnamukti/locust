@@ -2,7 +2,7 @@ import os, json, logging, jsonpath_rw_ext, jsonpath_rw
 from jsonpath_rw import jsonpath, parse
 from . import events
 from ast import literal_eval
-from flask import make_response
+from flask import make_response, flash
 
 logger = logging.getLogger(__name__)
 CONFIG_PATH = '/tests/settings/config.json'
@@ -30,7 +30,7 @@ class ClientConfiguration:
 
     def update_json_config(self, data_json, json_added, json_path, options, list_column):
         """
-        Write JSON file configuration
+        Write JSON file configuration with all data
         """
         if(options != "replace"):
             json_target = jsonpath_rw_ext.match(json_path, data_json)
@@ -199,6 +199,10 @@ class ClientConfiguration:
             return value
 
     @classmethod
-    def split_parent_child(jsonpath):
-        split_dir = dir(jsonpath)
-        print(split_dir)
+    def find_index(self, dicts, key, value):
+        class Null: pass
+        for i, d in enumerate(dicts):
+            if d.get(key, Null) == value:
+                return i
+        else:
+            return -1
