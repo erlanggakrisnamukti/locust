@@ -441,7 +441,7 @@ $("#not_save_json_btn").click(function(event) {
 });
 
 $("#input_type").on('change', function(){
-    if(this.value == 1)
+    if(this.value == "all_data")
         $("#key_csv_json").hide();
     else
         $("#key_csv_json").show();

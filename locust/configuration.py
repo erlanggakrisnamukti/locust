@@ -2,7 +2,7 @@ import os, json, logging, jsonpath_rw_ext, jsonpath_rw
 from jsonpath_rw import jsonpath, parse
 from . import events
 from ast import literal_eval
-from flask import make_response, flash
+from flask import make_response
 
 logger = logging.getLogger(__name__)
 CONFIG_PATH = '/tests/settings/config.json'
