@@ -288,20 +288,6 @@
                     </div>
                     <br>
 
-                    <div class="required_field">
-                        <label for="json_option" title="Choose desired action for current data">Action</label>
-                        <div>
-                            <input type="radio" name="json_option" id="json_option" value="replace"> replace<br>
-                            <input type="radio" name="json_option" id="json_option" value="append"> append<br>
-                        </div>
-                    </div>
-                    <br>
-                    <div id="column_name_container">
-                        <label for="column_name">Choose column name which has multiple data</label>
-                        <ul id="column_name" class="column_name"></ul>
-                    </div>
-                    <br>
-
                     <div>
                         <label for="input type csv">Input type csv</label>
                         <select id="input_type" name="input_type">
@@ -310,6 +296,21 @@
                         </select>
                     </div>
                     <br>
+
+                    <div id="column_name_container">
+                        <label for="column_name">Choose column name which has multiple data</label>
+                        <ul id="column_name" class="column_name"></ul>
+                    </div>
+                    <br>
+
+                    <div id="json_option_class" class="json_option_class">
+                        <label for="json_option" title="Choose desired action for current data">Action</label>
+                        <div>
+                            <input type="radio" name="json_option" id="json_option" value="replace"> replace<br>
+                            <input type="radio" name="json_option" id="json_option" value="append"> append<br>
+                        </div>
+                        <br>
+                    </div>
 
                     <div id="key_csv_json" class="key_csv_json">
                         <label for="Key CSV">Key CSV</label><br>

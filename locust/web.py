@@ -20,12 +20,8 @@ from locust.stats import median_from_dict
 from locust import __version__ as version
 from ast import literal_eval
 import gevent, itertools
-<<<<<<< ee0fde05464ad02147da23996af19ce2cf3908ca
 import fileio
 import base64
-=======
-
->>>>>>> changes requested
 
 import logging
 logger = logging.getLogger(__name__)

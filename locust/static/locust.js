@@ -441,10 +441,14 @@ $("#not_save_json_btn").click(function(event) {
 });
 
 $("#input_type").on('change', function(){
-    if(this.value == "all_data")
+    if(this.value == "all_data") {
         $("#key_csv_json").hide();
-    else
+        $("#json_option_class").show();
+    }
+    else {
         $("#key_csv_json").show();
+        $("#json_option_class").hide();
+    }
 });
 
 
