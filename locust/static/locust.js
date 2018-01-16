@@ -340,7 +340,7 @@ $('#convert_csv_btn').click(function(){
     event.preventDefault();
     try{
         $("#multiple_hidden_config_json").val(JSON.stringify(json_editor.get(), null , 4));
-        form = $('#multiple_column_form')[0];
+        var form = $('#multiple_column_form')[0];
         var form_data = new FormData(form);
         $.ajax({
             type:'POST',
@@ -442,14 +442,24 @@ $("#not_save_json_btn").click(function(event) {
 
 $("#input_type").on('change', function(){
     if(this.value == "all_data") {
+        $("#input_method").hide();
         $("#key_csv_json").hide();
-        $("#json_option_class").show();
     }
     else {
-        $("#key_csv_json").show();
-        $("#json_option_class").hide();
+        $("#input_method").show();
     }
 });
+
+function handle_input_method(input){
+    if(input.value == "depend_on_key"){
+        $("#key_csv_json").show();
+    }
+    else if (this.value == "in_sequence") {
+        $("#key_csv_json").hide();
+    }
+    else 
+        $("#key_csv_json").hide();
+};
 
 
 /* END OF CONFIGURATION SECTION */

@@ -361,7 +361,7 @@ label[for="json_option"]+div{
     box-shadow: 0 0 60px rgba(0,0,0,0.3);
 }
 
-.stopped .edit, .key_csv_json {display: none;}
+.stopped .edit, .key_csv_json, .input_method {display: none;}
 .running .edit, .hatching .edit, .multiple_column, .json_validation {
     display: none;
     border-radius: 5px;

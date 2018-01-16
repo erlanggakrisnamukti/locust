@@ -306,8 +306,17 @@
                     <div id="json_option_class" class="json_option_class">
                         <label for="json_option" title="Choose desired action for current data">Action</label>
                         <div>
-                            <input type="radio" name="json_option" id="json_option" value="replace"> replace<br>
-                            <input type="radio" name="json_option" id="json_option" value="append"> append<br>
+                            <input type="radio" name="json_option" id="json_option" value="replace"> Replace<br>
+                            <input type="radio" name="json_option" id="json_option" value="append"> Append<br>
+                        </div>
+                        <br>
+                    </div>
+
+                    <div id="input_method" class="input_method">
+                        <label for="input_method" title="Choose input method for each row action">Method</label>
+                        <div>
+                            <input type="radio" name="input_method_opt" id="input_method_opt" value="depend_on_key" onclick="handle_input_method(this);"> Depend on key<br>
+                            <input type="radio" name="input_method_opt" id="input_method_opt" value="in_sequence" onclick="handle_input_method(this);"> In sequence<br>
                         </div>
                         <br>
                     </div>

@@ -168,6 +168,38 @@ class ClientConfiguration:
         return splitpath[-1]
 
         
+    def update_json_each_row_on_sequence(self, json_added, json_path, options, list_column, config_text):
+        """
+        Write JSON file configuration each data json array and csv row on sequence
+        """ 
+        temppath = json_path.split('.')
+        if(len(temppath[len(temppath)-2]) > 0):
+            return make_response(json.dumps({'success':False, 'message':'Check again your jsonpath'}))
+        
+        data = literal_eval(config_text)
+        
+        for x in xrange(1,len(temppath)-1):
+            if(len(temppath[x]) > 0):
+                data = data[temppath[x]]
+
+        if(len(json_added) != len(data)):
+            return make_response(json.dumps({'success':False, 'message':'The amount of data between JSON and CSV is different'}))
+
+        datas = None
+        for y in xrange(0,len(json_added)):
+            json_path_iter = '.'.join(temppath[:-2]) + "[" + str(y) + "]." + temppath[-1]
+            if y==0:
+                data_each_iter = literal_eval(config_text)
+            else:
+                data_each_iter = datas
+            input = []
+            input.append(json_added[y])
+            
+            #Passing data_each_iter for every iteration. ex: iteration 1 will use data from iteration 0, iteration 2 will use data from iteration 1
+            datas = ClientConfiguration.update_json_config(self, input, json_path_iter, options, list_column, config_text, data=data_each_iter)
+        
+        return make_response(json.dumps({'success':True, 'data':json.dumps(datas, indent=4), 'key_pass_status':False, 'missing_key_message':''}))
+
     @classmethod    
     def get_path(self, match):
         """
@@ -200,9 +232,11 @@ class ClientConfiguration:
 
     @classmethod
     def find_index(self, dicts, key, value):
-        class Null: pass
+        """
+        To find index of key dictionary, given the value
+        """
         for i, d in enumerate(dicts):
-            if d.get(key, Null) == value:
+            if d[key] == value:
                 return i
         else:
             return -1
