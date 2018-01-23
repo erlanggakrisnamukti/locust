@@ -28,11 +28,11 @@ class ClientConfiguration:
                 self.config_data = json.load({})
         return self.config_data
 
-    def update_json_config(self, json_added, json_path, options, list_column, config_text):
+    def update_json_config(self, data_json, json_added, json_path, options, list_column, config_text):
         """
         Write JSON file configuration
         """
-        data = literal_eval(config_text)
+        data = data_json
 
         if(options != "replace"):
             json_target = jsonpath_rw_ext.match(json_path, data)
@@ -59,6 +59,39 @@ class ClientConfiguration:
             data = ClientConfiguration.update_json(data, ClientConfiguration.get_path(match), json_final)
         
         return make_response(json.dumps({'success':True, 'data':json.dumps(data, indent=4)}))
+
+    def add_new_key(self, parent_path, new_key_name, new_key_type, config_text):
+        data = literal_eval(config_text)
+        data_target = data
+        temppath = parent_path.split('.')
+        child_split = new_key_name.split('.')
+
+        counts = {}
+        branch = counts
+        for part in child_split[1:]:
+            if part == child_split[-1]:
+                if new_key_type == "string":
+                    branch = branch.setdefault(part, "")
+                elif new_key_type == "object":
+                    branch = branch.setdefault(part, {})
+                else:
+                    branch = branch.setdefault(part, [])
+            else:
+                branch = branch.setdefault(part, {})
+
+        for x in xrange(1,len(temppath)):
+            data_target = data_target[temppath[x]]
+
+        for y in xrange(0,len(data_target)):
+            data_target[y][child_split[0]] = counts
+            path = parent_path + "[" + str(y) + "]"
+            jsonpath_expr = parse(path)
+            matches = jsonpath_expr.find(data)
+
+            for match in matches:
+                data = ClientConfiguration.update_json(data, ClientConfiguration.get_path(match), data_target[y])
+
+        return data
         
     @classmethod    
     def get_path(self, match):

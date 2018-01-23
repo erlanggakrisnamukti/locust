@@ -284,8 +284,22 @@
                         <label for="jsonpath" title="JSON path input">JSON Path</label>
                         <input type="text" name="jsonpath" id="jsonpath" class="val" required/>
                         <small>Example : $.production.accounts (data belongs to accounts section, where accounts belongs to production section)</small>
+                        <br>
+                        <input type="checkbox" id="new_path_checkbox" name="new_path_checkbox" value="new_path"/> New path on list
                     </div>
                     <br>
+                    <div id="type_variable" name="type_variable" style="display:none">
+                        <label for="new_column" title="JsonPath as new column">Last variable type</label>
+                        <div>
+                            <select id="last_var_type" name="last_var_type">
+                                <option value="string">String</option>
+                                <option value="array">Array</option>
+                                <option value="object">Object</option>
+                            </select>
+                        </div>
+                        <br>
+                    </div>
+
                     <div class="required_field">
                         <label for="json_option" title="Choose desired action for current data">Action</label>
                         <div>

@@ -346,6 +346,10 @@ $(".config_ramp_test").click(function(event) {
     }
 });
 
+$("#new_path_checkbox").change(function(event){
+    $("#type_variable").toggle();
+});
+
 
 $("#save_json_btn").click(function(event) {
     $("#submit_json_btn").trigger("click");

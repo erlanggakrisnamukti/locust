@@ -316,10 +316,26 @@ def config_csv():
 def convert_csv_to_json():
     try:
         multiple_data_headers = request.form.getlist('headers_checkbox')
+        newpath_checkbox = request.form.getlist('new_path_checkbox')
         jsonpath = str(request.form['jsonpath'])
         options = request.form['json_option']
         config_text = request.form["multiple_form_final_json"]
 
+        data_json = {}
+        cc = configuration.ClientConfiguration()
+        
+        if "new_path" in newpath_checkbox:
+            last_var_type = str(request.form["last_var_type"])
+            temppath = jsonpath.split("..")
+            if len(temppath) > 2:
+                response = make_response(json.dumps({'success':False, 'message':'Currently cannot handle more than 1 sub-array. Try another JSON Path'}))
+                response.headers["Content-type"] = "application/json"
+                return response
+            data_json = cc.add_new_key(temppath[0], temppath[1], last_var_type, config_text)
+        else:
+            data_json = literal_eval(config_text)
+
+        print("data json : ", data_json)
         if jsonpath.strip() and options:
             global csv_stream
             report = {}
@@ -335,7 +351,7 @@ def convert_csv_to_json():
                     report['data'] = tempStr.get(csv_stream.get_columns_name()[0])
 
             cc = configuration.ClientConfiguration()
-            response = cc.update_json_config(report['data'], jsonpath, options, csv_stream.get_columns_name(), config_text)
+            response = cc.update_json_config(data_json, report['data'], jsonpath, options, csv_stream.get_columns_name(), config_text)
             response.headers["Content-type"] = "application/json"
             
             return response
