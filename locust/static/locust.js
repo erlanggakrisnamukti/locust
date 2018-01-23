@@ -279,6 +279,10 @@ var multiple_data_headers;
 var jsonpath;
 var json_option;
 var config_text;
+var input_type;
+var input_method;
+var key_json;
+var key_csv;
 
 $('#continue_validation').click(function(event) {
     event.preventDefault();
@@ -287,16 +291,18 @@ $('#continue_validation').click(function(event) {
         type    : 'POST',
         url     : '/config/validation/create_new_key',
         enctype : 'multipart/form-data',
-        data    : JSON.stringify({'multiple_data_headers': multiple_data_headers ? multiple_data_headers.value : null, 
+        data    : JSON.stringify({'multiple_data_headers': multiple_data_headers ? multiple_data_headers.value : [], 
                     'jsonpath': jsonpath ? jsonpath.value : null, 'options':json_option ? json_option.value : null, 
-                    'config_text':config_text ? config_text.value : null, 'last_var_type':last_var_type ? last_var_type.value : null}),
+                    'config_text':config_text ? config_text.value : null, 'input_type':input_type ? input_type.value : null,
+                    'input_method':input_method ? input_method.value : null, 'key_json':key_json ? key_json.value : null,
+                    'key_csv':key_csv ? key_csv.value : null, 'last_var_type':last_var_type ? last_var_type.value : null}),
         cache   : false,
         contentType : 'application/json;charset=UTF-8',
         processData : false,
         success: function(response){
             if (response.success) {
                 try{
-                    json_editor.set(JSON.parse(response.data));
+                    json_editor.set(JSON.parse(response.data.json_data));
                     $(".multiple_column").hide();
                     $('#json_validation').hide();
                     $("#column_name").empty();
@@ -320,7 +326,7 @@ $('#multiple_column_form').submit(function(event) {
         function(response) {
             if (response.success) {
                 try{
-                    json_editor.set(JSON.parse(response.data));
+                    json_editor.set(JSON.parse(response.data.json_data));
                     $(".multiple_column").hide();
                     $("#column_name").empty();
                     document.getElementById("import_csv_form").reset();
@@ -353,9 +359,9 @@ $('#convert_csv_btn').click(function(){
             success: function(response){
                 if (response.success) {
                     try{
-                        if (response.key_pass_status)
+                        if (response.missing_key_message.length > 0)
                             alert(response.missing_key_message);
-                        json_editor.set(JSON.parse(response.data));
+                        json_editor.set(JSON.parse(response.data.json_data));
                         $(".multiple_column").hide();
                         $("#column_name").empty();
                         document.getElementById("import_csv_form").reset();
@@ -371,6 +377,15 @@ $('#convert_csv_btn').click(function(){
                             jsonpath = document.getElementById('jsonpath');
                             json_option = document.querySelector('input[name="json_option"]:checked');
                             config_text = document.getElementById('multiple_hidden_config_json');
+                            var e = document.getElementById('input_type');
+                            input_type = e.options[e.selectedIndex];
+                            if(input_type != "all_data") {
+                                input_method = document.querySelector('input[name="input_method_opt"]:checked');
+                                if(input_method.value == "depend_on_key") {
+                                    key_json = document.getElementById('key_json')
+                                    key_csv = document.getElementById('key_csv')
+                                }
+                            }
 
                             $('#multiple_column').hide();
                             $('#json_validation').show();

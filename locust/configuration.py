@@ -28,32 +28,37 @@ class ClientConfiguration:
                 self.config_data = json.load({})
         return self.config_data
 
-    def update_json_config(self, data_json, json_added, json_path, options, list_column):
+    def update_json_config(self, new_config_data_added, json_path, options, list_column, config_text, **kwargs):
         """
         Write JSON file configuration with all data
         """
+        data = kwargs.get("data_each_iter", literal_eval(config_text))
         if(options != "replace"):
-            json_target = jsonpath_rw_ext.match(json_path, data_json)
+            json_target = jsonpath_rw_ext.match(json_path, data)
             if isinstance(json_target[0], dict):
-                if list_column==1:
-                    json_target[0][list_column[0]] = json_added
+                if len(list_column)==1:
+                    json_target[0][list_column[0]] = new_config_data_added
                     json_final = json_target[0]
                 else:
-                    return make_response(json.dumps({'success':False, 'error_type':'type not match', 'message':'last variable JSONPath type not match with data.'}))
+                    response = {'success':False, 'data':{'json_data':json.dumps(data)}, 'message':'JSON and CSV data type not match'}
             else:
                 for json_target_value in json_target[0]:
-                    json_added.append(json_target_value)
-                json_final = json_added
+                    new_config_data_added.append(json_target_value)
+                json_final = new_config_data_added
         else:
-            json_final = json_added
-
+            json_final = new_config_data_added
         jsonpath_expr = parse(json_path)
-        matches = jsonpath_expr.find(data_json)
-        
-        for match in matches:
-            data_json = ClientConfiguration.update_json(data_json, ClientConfiguration.get_path(match), json_final)
-        
-        return make_response(json.dumps({'success':True, 'data':json.dumps(data_json, indent=4)}))
+        matches = jsonpath_expr.find(data)
+
+        if len(matches)==0:
+            response = {'success':False, 'message':'JSON path not found.'}
+        else:
+            for match in matches:
+                data = self.update_json(data, self.get_path(match), json_final)
+
+            response = {'success':True, 'data':{'json_data':json.dumps(data)}, 'missing_key_message':''}
+            
+        return response
 
     def add_new_key(self, temppath, new_key_type, config_text):
         """
@@ -62,7 +67,7 @@ class ClientConfiguration:
         data = literal_eval(config_text)
         splitpath = filter(None, temppath.split('.'))
 
-        return self.create_path(data, splitpath, new_key_type, 1)
+        return json.dumps(self.create_path(data, splitpath, new_key_type, 1))
 
     def check_key(self, input_json, json_path):
         """
@@ -84,7 +89,10 @@ class ClientConfiguration:
         if type(input_json) is dict and input_json:
             if splitpath[index] in input_json:
                 input_json = input_json[splitpath[index]]
-                self.create_path(input_json, splitpath, type_new_key, index+1)
+                if index<len(splitpath):
+                    self.create_path(input_json, splitpath, type_new_key, index+1)
+                else:
+                    return
             elif index == len(splitpath)-1:
                 if type_new_key == "number":
                     input_json[splitpath[index]] = 0
@@ -144,6 +152,27 @@ class ClientConfiguration:
                     break
         return status, message
 
+    def compare_json_csv_count(self, input_json, splitpath, index, new_config_data_added):
+        """
+        Compare json and csv size
+        """ 
+        if index > len(splitpath)-2:
+            if(len(new_config_data_added) != len(input_json)):
+                return True
+            else:
+                return False
+
+        elif type(input_json) is dict and input_json:
+            if splitpath[index] in input_json:
+                input_json = input_json[splitpath[index]]
+                status = self.compare_json_csv_count(input_json, splitpath, index+1, new_config_data_added)
+
+        elif type(input_json) is list and input_json:
+            for entity in input_json:
+                status = self.compare_json_csv_count(entity, splitpath, index, new_config_data_added)
+
+        return status
+
     def convert_to_json(self, csv_stream, multiple_data_headers):
         """
         Convert csv data to json
@@ -167,38 +196,125 @@ class ClientConfiguration:
         splitpath = filter(None, jsonpath.split('.'))
         return splitpath[-1]
 
+    def update_json_each_row_depend_on_key(self, new_config_data_added, json_path, options, list_column, config_text, key_json, key_csv):
+        """
+        Write JSON file configuration each data json array and csv row depends on a key
+        """ 
+        temppath = json_path.split('.')
+        if(len(temppath[len(temppath)-2]) > 0):
+            response = {'success':False, 'error_type':'JSON not supported', 'message':'Your JSON Path not supported. Please change'}
+        else:
+            data = literal_eval(config_text)
+
+            temppath = filter(None, temppath)
+            data = literal_eval(config_text)
+            input_method = "on_key"
+
+            status, data = self.path_preparation(new_config_data_added, data, temppath, 1, options, list_column, config_text, input_method, key_json=key_json, key_csv=key_csv)
+            json_data = data[0]
+            missing_key = data[1]
+
+            if len(data[1]) == 0:
+                missing_key_message = ""
+            elif len(data[1]) == len(new_config_data_added):
+                missing_key_message = "All data failed to insert"
+            else:
+                missing_key_message = "Insert success but some data failed : " + ','.join(data[1])
+            response = {'success':True, 'data':{'json_data':json_data, 'missing_key':missing_key}, 'missing_key_message':missing_key_message}
         
-    def update_json_each_row_on_sequence(self, json_added, json_path, options, list_column, config_text):
+        return response
+        
+    def update_json_each_row_on_sequence(self,new_config_data_added, json_path, options, list_column, config_text):
         """
         Write JSON file configuration each data json array and csv row on sequence
         """ 
         temppath = json_path.split('.')
         if(len(temppath[len(temppath)-2]) > 0):
-            return make_response(json.dumps({'success':False, 'message':'Check again your jsonpath'}))
-        
-        data = literal_eval(config_text)
-        
-        for x in xrange(1,len(temppath)-1):
-            if(len(temppath[x]) > 0):
-                data = data[temppath[x]]
+            response = {'success':False, 'error_type':'JSON not supported', 'message':'Your JSON Path not supported. Please change'}
+            # return make_response(json.dumps({'success':False, 'message':'Your JSON Path not supported. Please change'}))
+        else:
+            temppath = filter(None, temppath)
+            data = literal_eval(config_text)
+            if self.compare_json_csv_count(data, temppath, 1, new_config_data_added):
+                response = {'success':False, 'error_type':'data different', 'message':'The amount of data between JSON and CSV is different'}
+            else:
+                input_method = "sequence"
+            
+                status, data = self.path_preparation(new_config_data_added, data, temppath, 1, options, list_column, config_text, input_method)
+                if status:
+                    json_data = data[0]
+                    missing_key = data[1]
+                    response = {'success':status, 'data':{'json_data':json_data, 'missing_key':missing_key}, 'missing_key_message':''}
+                else:
+                    response = {'success':status, 'error_type':data['error_type'], 'message':data['message']}
 
-        if(len(json_added) != len(data)):
-            return make_response(json.dumps({'success':False, 'message':'The amount of data between JSON and CSV is different'}))
+        return response
 
-        datas = None
-        for y in xrange(0,len(json_added)):
-            json_path_iter = '.'.join(temppath[:-2]) + "[" + str(y) + "]." + temppath[-1]
+    def path_preparation(self, new_config_data_added, data_json, splitpath, index, options, list_column, config_text, input_method, **kwargs):
+        """
+        Recursive method to find the path of JSONPath
+        """
+        initial_json = data_json
+        if index == len(splitpath)-1:
+            iteration_json_config = None
+            if input_method == "sequence":
+                status, response = True, self.input_row_sequence_method(new_config_data_added, splitpath, config_text, options, list_column)
+            else:
+                status, response = True, self.input_depend_on_key_method(new_config_data_added, splitpath, config_text, options, list_column, kwargs.get("key_json", ""), kwargs.get("key_csv", ""), data_json)
+
+            return status, response
+
+        elif type(data_json) is dict and  data_json:
+            data_json = data_json[splitpath[index]]
+            status, response = self.path_preparation(new_config_data_added, data_json, splitpath, index+1, options, list_column, config_text, input_method, key_json=kwargs.get("key_json", ""), key_csv=kwargs.get("key_csv", ""))
+        
+        elif type(data_json) is list and data_json:
+            for entity in data_json:
+                status, response = self.path_preparation(new_config_data_added, data_json, splitpath, index, options, list_column, config_text, input_method, key_json, key_csv)
+                if not status:
+                    break
+
+        if status:
+            return True, response
+        else:
+            return False, response
+
+    def input_row_sequence_method(self, new_config_data_added, splitpath, config_text, options, list_column):
+        """
+        Process input csv data by sequence
+        """
+        for y in xrange(0,len(new_config_data_added)):
+            json_path_iter = '.'.join(splitpath[:-1]) + "[" + str(y) + "]." + splitpath[-1]
             if y==0:
                 data_each_iter = literal_eval(config_text)
             else:
-                data_each_iter = datas
+                data_each_iter = literal_eval(iteration_json_config['data']['json_data'])
             input = []
-            input.append(json_added[y])
-            
+            input.append(new_config_data_added[y])
             #Passing data_each_iter for every iteration. ex: iteration 1 will use data from iteration 0, iteration 2 will use data from iteration 1
-            datas = ClientConfiguration.update_json_config(self, input, json_path_iter, options, list_column, config_text, data=data_each_iter)
-        
-        return make_response(json.dumps({'success':True, 'data':json.dumps(datas, indent=4), 'key_pass_status':False, 'missing_key_message':''}))
+            iteration_json_config = self.update_json_config(input, json_path_iter, options, list_column, config_text, data_each_iter=data_each_iter)
+        return iteration_json_config['data']['json_data'], []
+
+    def input_depend_on_key_method(self, new_config_data_added, splitpath, config_text, options, list_column, key_json, key_csv, data_json):
+        """
+        Process input csv data by csv key and json key
+        """
+        iteration_json_config = None
+        missing_data_key_csv = []
+        for y in xrange(0,len(new_config_data_added)):
+            index_search = self.find_index(data_json, key_json, new_config_data_added[y][key_csv])
+            if index_search < 0:
+                missing_data_key_csv.append(new_config_data_added[y][key_csv])
+            else:
+                json_path_iter = '.'.join(splitpath[:-1]) + "[" + str(index_search) + "]." + splitpath[-1]
+                data_each_iter = literal_eval(config_text) if y==0 else literal_eval(iteration_json_config['data']['json_data'])
+
+                new_config_data_added[y].pop(key_csv)
+                input = [new_config_data_added[y]]
+
+                #Passing data_each_iter for every iteration. ex: iteration 1 will use data from iteration 0, iteration 2 will use data from iteration 1
+                iteration_json_config = self.update_json_config(input, json_path_iter, options, list_column, config_text, data_each_iter=data_each_iter)
+        return iteration_json_config['data']['json_data'], missing_data_key_csv
 
     @classmethod    
     def get_path(self, match):
@@ -207,7 +323,7 @@ class ClientConfiguration:
         start from outer most item.
         """
         if match.context is not None:
-            for path_element in ClientConfiguration.get_path(match.context):
+            for path_element in self.get_path(match.context):
                 yield path_element
             yield str(match.path)
 
@@ -225,7 +341,7 @@ class ClientConfiguration:
                     first = int(first[1:-1])
                 except ValueError:
                     pass
-            json[first] = ClientConfiguration.update_json(json[first], path, value)
+            json[first] = self.update_json(json[first], path, value)
             return json
         except StopIteration:
             return value
@@ -240,3 +356,10 @@ class ClientConfiguration:
                 return i
         else:
             return -1
+
+    @classmethod
+    def get_config_data(temppath):
+        for x in xrange(1,len(temppath)-1):
+            if(len(temppath[x]) > 0):
+                data = data[temppath[x]]
+        return data

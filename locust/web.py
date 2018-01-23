@@ -6,8 +6,7 @@ from itertools import chain
 from collections import defaultdict
 from six.moves import StringIO, xrange
 import six
-import main
-import tests_loader
+from . import tests_loader
 
 from gevent import wsgi
 from flask import Flask, make_response, request, render_template, redirect, url_for
@@ -330,7 +329,34 @@ def convert_csv_to_json():
             json_added = cc.convert_to_json(csv_stream, multiple_data_headers)
             status, message = cc.check_key(data_json, jsonpath)
             if status:
-                response = cc.update_json_config(data_json, json_added, jsonpath, options, len(csv_stream.get_columns_name()))
+                if(len(multiple_data_headers) > 0):
+                    temp_str = csv_stream.convert(multiple_data_headers)
+                    data = temp_str
+                else:
+                    temp_str = csv_stream.convert([])
+                    if len(csv_stream.get_columns_name()) > 1:
+                        data = temp_str
+                    else:
+                        data = temp_str.get(csv_stream.get_columns_name()[0])
+
+                cc = configuration.ClientConfiguration()
+
+                if input_type == "all_data":
+                    response = cc.update_json_config(data, jsonpath, options, csv_stream.get_columns_name(), config_text)
+                else:
+                    input_method = request.form['input_method_opt']
+                    if input_method == "depend_on_key":
+                        key_json = str(request.form['key_json'])
+                        key_csv = str(request.form['key_csv'])
+
+                        if key_json.strip() and key_csv.strip():
+                            response = cc.update_json_each_row_depend_on_key(data, jsonpath, options, csv_stream.get_columns_name(), config_text, key_json, key_csv)
+                        else:
+                            response = {'success':False, 'message':'Please fill in or select required field.'}
+                    else:
+                        response = cc.update_json_each_row_on_sequence(data, jsonpath, options, csv_stream.get_columns_name(), config_text)
+
+                response = make_response(json.dumps(response))
             else:
                 response = make_response(json.dumps({'success':False, 'error_type':'JSON not found', 'data': {'missing_element':message, 'last_variable':cc.get_last_variable(jsonpath)}, 'message':'missing element jsonpath on json'}))
         else:
@@ -339,6 +365,8 @@ def convert_csv_to_json():
     except Exception,e:
         if type(e).__name__ == 'BadRequestKeyError':
             response = make_response(json.dumps({'success':False, 'error_type':'unfulfilled required field', 'message':'Please fill in or select required field.'}))
+        elif type(e).__name__ == 'KeyError':
+            response = make_response(json.dumps({'success':False, 'error_type':'unfulfilled required field', 'message': 'Key '+str(e)+' not found'}))
         else:
             response = make_response(json.dumps({'success':False, 'error_type':'unfulfilled required field', 'message': str(e)}))
     
@@ -352,13 +380,43 @@ def validation_create_new_key():
 
     multiple_data_headers = dataDict['multiple_data_headers']
     jsonpath = dataDict['jsonpath']
-    json_option = dataDict['options']
+    options = dataDict['options']
     config_text = dataDict['config_text']
+    input_type = dataDict['input_type']
 
     cc = configuration.ClientConfiguration()
-    data_json = cc.add_new_key(jsonpath, last_var_type, config_text)
+    new_json_key = cc.add_new_key(jsonpath, last_var_type, config_text)
     global csv_stream
-    response = cc.update_json_config(data_json, cc.convert_to_json(csv_stream, multiple_data_headers), jsonpath, json_option, len(csv_stream.get_columns_name()))
+
+    if(len(multiple_data_headers) > 0):
+        temp_str = csv_stream.convert(multiple_data_headers)
+        data = temp_str
+    else:
+        temp_str = csv_stream.convert([])
+        if len(csv_stream.get_columns_name()) > 1:
+            data = temp_str
+        else:
+            data = temp_str.get(csv_stream.get_columns_name()[0])
+
+    cc = configuration.ClientConfiguration()
+
+    if input_type == "all_data":
+        response = cc.update_json_config(data, jsonpath, options, csv_stream.get_columns_name(), new_json_key)
+    else:
+        input_method = dataDict['input_method']
+        if input_method == "depend_on_key":
+            key_json = dataDict['key_json']
+            key_csv = dataDict['key_csv']
+
+            if key_json.strip() and key_csv.strip():
+                response = cc.update_json_each_row_depend_on_key(data, jsonpath, options, csv_stream.get_columns_name(), new_json_key, key_json, key_csv)
+            else:
+                response = {'success':False, 'message':'Please fill in or select required field.'}
+        else:
+            response = cc.update_json_each_row_on_sequence(data, jsonpath, options, csv_stream.get_columns_name(), new_json_key)
+
+    response = make_response(json.dumps(response))
+
     response.headers["Content-type"] = "application/json"
     return response
     

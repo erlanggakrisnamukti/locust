@@ -287,13 +287,16 @@
                         <br>
                     </div>
                     <br>
-
-                    <div>
-                        <label for="input type csv">Input type csv</label>
-                        <select id="input_type" name="input_type">
-                            <option value="all_data">All data</option>
-                            <option value="each_row">Each row per key</option>
-                        </select>
+                    
+                    <div class="required_field">
+                        <div id="json_option_class" class="json_option_class">
+                            <label for="json_option" title="Choose desired action for current data">Action</label>
+                            <div>
+                                <input type="radio" name="json_option" id="json_option" value="replace"> Replace<br>
+                                <input type="radio" name="json_option" id="json_option" value="append"> Append<br>
+                            </div>
+                            <br>
+                        </div>
                     </div>
                     <br>
 
@@ -303,28 +306,29 @@
                     </div>
                     <br>
 
-                    <div id="json_option_class" class="json_option_class">
-                        <label for="json_option" title="Choose desired action for current data">Action</label>
-                        <div>
-                            <input type="radio" name="json_option" id="json_option" value="replace"> Replace<br>
-                            <input type="radio" name="json_option" id="json_option" value="append"> Append<br>
-                        </div>
-                        <br>
+                    <div>
+                        <label for="input type csv">Matching Method</label>
+                        <select id="input_type" name="input_type">
+                            <option value="all_data">Normal</option>
+                            <option value="each_row">Matching</option>
+                        </select><br>
+                        <small>Method to import CSV's data</small>
                     </div>
+                    <br>
 
                     <div id="input_method" class="input_method">
-                        <label for="input_method" title="Choose input method for each row action">Method</label>
+                        <label for="input_method" title="Choose input method for each row action">Join Method</label>
                         <div>
-                            <input type="radio" name="input_method_opt" id="input_method_opt" value="depend_on_key" onclick="handle_input_method(this);"> Depend on key<br>
-                            <input type="radio" name="input_method_opt" id="input_method_opt" value="in_sequence" onclick="handle_input_method(this);"> In sequence<br>
+                            <input type="radio" name="input_method_opt" id="input_method_opt" value="depend_on_key" onclick="handle_input_method(this);"> Depend on Key<br>
+                            <input type="radio" name="input_method_opt" id="input_method_opt" value="in_sequence" onclick="handle_input_method(this);"> Row Sequence<br>
                         </div>
                         <br>
                     </div>
 
                     <div id="key_csv_json" class="key_csv_json">
-                        <label for="Key CSV">Key CSV</label><br>
+                        <label for="Key CSV">CSV's column key</label><br>
                         <input type="text" name="key_csv" id="key_csv" class="val"><br><br>
-                        <label for="Key JSON">Key JSON</label><br>
+                        <label for="Key JSON">Configuration's key</label><br>
                         <input type="text" name="key_json" id="key_json" class="val"><br><br>
                     </div>
                     <button id="convert_csv_btn">Convert</button>
@@ -337,10 +341,10 @@
             <div class="padder">
                 <h2>JSON Path Validation</h2><br>
                 <form action="/config/validation/create_new_key" method="POST" id="json_validation_form">
-                    Key <label id="key_not_found" >lorem</label> not found in <label id="jsonpath_label">ipsum</label>. Select <label id="last_variable_1">dolor</label> type to create new key
+                    Key <label id="key_not_found">lorem</label> not found in<label id="jsonpath_label">ipsum</label>. Select <label id="last_variable_1">dolor</label> type to create new key
                     <br><br>
                     <div id="type_variable" name="type_variable">
-                        <label for="new_column" title="JsonPath as new column">Select type of variable &nbsp;</label><label id="last_variable_2">amet</label><br>
+                        Select type of variable <label id="last_variable_2">amet</label><br>
                         <div>
                             <select id="last_var_type" name="last_var_type">
                                 <option value="object">Object</option>
