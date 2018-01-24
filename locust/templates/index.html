@@ -66,9 +66,6 @@
     </div>
     <div class="main">
         <div class="start" id="start">
-            <div style="position:relative;">
-                <a href="#" class="close_link">Close</a>
-            </div>
             <div class="padder">
                 <h2>Start new Locust swarm</h2>
                 <form action="/swarm" method="POST" id="swarm_form" class="start-timer upload_file">
@@ -79,17 +76,17 @@
                     <input type="text" name="hatch_rate" id="hatch_rate" class="val" />
                     <br>
                     <input type="hidden" name="type_swarm" value="start">
-                    <label for="locustfile">Locust file to execute</label>
-                    <select name="locustfile" id="locustfile" class="select2">
+                    <label for="locustfile"><i>Locust file to execute</i></label>
+                    <div class="input-group">
+                    <select name="locustfile" id="locustfile" class="select2 select2-hidden-accessible select2-start-width" placeholder="Select type">
+                        <option value="add_new_test_file">Upload test file</option>
                         {% for name in available_locustfiles %}
                             <option value="{{name}}">{{name}}</option>
                         {% endfor %}
                     </select>
-                    <br>
+                    </div>
                     <br>
                     <a href="#" class="edit_config_link">Edit Config</a>
-                    <br/>
-                    <a href="#" class="upload_file_link">Upload File</a>
                     <button type="submit">Start swarming</button>
                 </form>
                 <div style="clear:right;"></div>
@@ -101,7 +98,54 @@
                 {% endif %}
             </div>
         </div>
-
+        <div id="new-test-confirmation" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Creating new test will refresh all the data in charts.</p>
+                </div>
+                <div class="modal-footer">
+                    <form action="/new" method="POST">
+                        <button type="submit" class="btn btn-default btn-newtest">Yes</button>
+                        <button type="button" class="btn btn-default btn-newtest" data-dismiss="modal">No</button>
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div id="addNewFileModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+          
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Upload test file</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
+                        <label>Path :</label>
+                        <select name="upload_directory" id="directories" class="select2">
+                            {% for value in test_file_directories %}
+                                <option value="{{value}}">{{value}}</option>
+                            {% endfor %}
+                        </select>
+                        <br/>
+                        <br/>
+                        <label>File to upload :</label>
+                        <br/>
+                        <input type="file" accept=".py" name="python_file" id="python_file" />
+                        <input type="submit" value="Upload" id="upload_btn_submit" />
+                    </form>
+                </div>
+              </div>
+            </div>
+        </div>
         <div class="edit" id="edit">
             <div style="position:relative;">
                 <a href="#" class="close_link">Close</a>
@@ -228,70 +272,28 @@
         <div class="upload_file" id="upload_file" style="display:none">
             <div class="head_section">
                 <div class="container">
-                    <div class="title_header">Upload file</div>
-                    <!-- <ul id="link_navigation">
-                        <li><a href="#" class="config_new_test">New Test</a></li>
-                        {% if ramp %}
-                            <li><a href="#" class="config_ramp_test">New Ramp</a></li>
-                        {% endif %}
-                    </ul> -->
+                    <div class="title_header">Upload test file to the destination path</div>
+                    <ul id="link_navigation">
+                    </ul>
                 </div>
             </div>
             <div class="center_padder container body_section">
                 
                 <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
                     <label>Path :</label>
-                    <select name="upload_file_path">
-                        <option value="/libs/">libs/</option>
-                        <option value="/modules/">modules/</option>
-                        <option value="/tests/">tests/</option>
-                        <option value="/tests/helper/">tests/helper/</option>
-                        <option value="/tests/modules/">tests/modules/</option>
-                        <option value="/tests/pages/">tests/pages/</option>
-                        <option value="/tests/pages/android/">tests/pages/android/</option>
-                        <option value="/tests/pages/android/no_session/">tests/pages/android/no_session/</option>
-                        <option value="/tests/">tests/pages/android/session/</option>
-                        <option value="/tests/">tests/pages/desktop/</option>
-                        <option value="/tests/">tests/pages/desktop/no_session/</option>
-                        <option value="/tests/">tests/pages/desktop/session/</option>
-                        <option value="/tests/">tests/pages/mobile_web/</option>
-                        <option value="/tests/">tests/pages/mobile_web/no_session/</option>
-                        <option value="/tests/">tests/pages/mobile_web/session/</option>
-                        <option value="/tools/">tools/settings/</option>
+                    <select name="upload_directory" id="directories" class="select2">
+                        {% for value in test_file_directories %}
+                            <option value="{{value}}">{{value}}</option>
+                        {% endfor %}
                     </select>
                     <br/>
                     <br/>
                     <label>File to upload :</label>
                     <br/>
                     <input type="file" accept=".py" name="python_file" id="python_file" />
-                    <input type="submit" value="Upload" id="upload_btn" />
+                    <input type="submit" value="Upload" id="upload_btn_submit" />
                 </form>
-                <!-- <br>
-                <form action="/config/save_json" method="POST" id="json_config_form">
-                    <input type="hidden" id="hidden_config_json" name="final_json" value="{{json_config}}">
-                    <button type="submit" id="submit_json_btn">Save</button>
-                </form> -->
             </div>
-            <!-- <div class="modal fade" id="modal_confirm_save_json" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <h5 class="modal-title" id="myModalLabel">Unsaved Configuration</h5>
-                        </div>
-                        <div class="modal-body">
-                            You have unsaved configuration. Do you want to save it?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-default" id="not_save_json_btn" data-origin-link="">Don't Save</button>
-                            <button type="button" class="btn btn-primary" id="save_json_btn">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
 
         <div class="multiple_column" id="multiple_column" style="display:none;">

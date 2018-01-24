@@ -5,6 +5,15 @@ $(window).ready(function() {
     }
 });
 
+$("#locustfile").on('select2:close', function(){
+    event.preventDefault();
+    var el = $(this);
+    if(el.val()==="add_new_test_file") {
+        $('#addNewFileModal').modal('show'); 
+    }
+    
+});
+
 $("#box_stop a.stop-button").click(function(event) {
     event.preventDefault();
     $.get($(this).attr("href"));
@@ -42,11 +51,7 @@ $(".ramp_test").click(function(event) {
 
 $("#new_test").click(function(event) {
     event.preventDefault();
-    $("#start").show();
-    $("#ramp").hide();
-    $("#edit_config").hide();
-    $("#locust_count").focus().select();
-    $(".status").removeClass("none");
+    $("#new-test-confirmation").modal('show');
 });
 
 $(".edit_test").click(function(event) {
@@ -166,31 +171,44 @@ $(".edit_config_link").click(function(event) {
 
 $(".upload_file_link").click(function(event) {
     event.preventDefault();
-    try{
-        $.ajax({
-            type: "GET",
-            url: "/config/get_config_content",
-            success: function(response){
-                $("#hidden_config_json").val(response.data);
-                $("#start").hide();
-                $("#ramp").hide();
-                $("#upload_file").show();
-                $(".status").addClass("none");
-                $("#config_tab").trigger("click");
-            }
-        }); 
-    }
-    catch(err){
-        alert("Failed to load configuration data.\n\nOriginal error message:\n" + err);
-    }
-    
+    $("#start").hide();
+    $("#ramp").hide();
+    $("#upload_file").show();
+    $(".status").addClass("none");
 });
+
+$('#upload_btn_submit').click(function(){
+    event.preventDefault();
+    $('#upload_file_form').submit();
+});
+
+$('#upload_file_form').submit(function(event) {
+    event.preventDefault();
+    var form = $('#upload_file_form')[0];
+    var form_data = new FormData(form);
+    $.ajax({
+        type: 'POST',
+        url: "/upload_file",
+        enctype: "multipart/form-data",
+        contentType: false,
+        data: form_data,
+        cache: false,
+        processData: false,
+        success: function (response) {
+            if (response.success) {
+                location.reload(true);
+            }
+        }
+    })
+});
+
 
 $('#submit_json_btn').click(function(){
     event.preventDefault();
     $('#hidden_config_json').val(JSON.stringify(json_editor.get(), null , 4));
     $('#json_config_form').submit();
 });
+
 
 $('#json_config_form').submit(function(event) {
     event.preventDefault();
@@ -362,12 +380,15 @@ $('#swarm_form').submit(function(event) {
         function(response) {
             if (response.success) {
                 $("body").attr("class", "hatching");
-                $("#start").fadeOut();
-                $("#status").fadeIn();
-                $(".box_running").fadeIn();
-                $("a.new_test").fadeOut();
-                $("a.edit_test").fadeIn();
-                $(".user_count").fadeIn();
+                $("#start").hide();
+                $("#status").show();
+                $(".box_running").show();
+                $("a.new_test").hide();
+                $("a.edit_test").show();
+                $(".user_count").show();
+                $(".menu").show();
+                $("#stats").show();
+                $(".box_running").show();
                 resetCharts();
             }
         }
