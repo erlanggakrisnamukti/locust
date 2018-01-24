@@ -288,6 +288,17 @@ class MasterLocustRunner(DistributedLocustRunner):
                 self.server.send(Message("config", data, None))
         events.master_new_configuration += on_master_new_configuration
 
+        def on_master_new_file_uploaded(uploaded_python_file):
+            logger.info("master has been received a new test file, slaves should update theirs too")
+            data =  {
+                        'python_file':uploaded_python_file
+                    }
+            for client in six.itervalues(self.clients):
+                self.server.send(Message("python_file", data, None))
+                print ("six slaves updated yeah")
+        events.master_new_file_uploaded += on_master_new_file_uploaded
+        print ("the events also updated yah")
+
     @property
     def user_count(self):
         return sum([c.user_count for c in six.itervalues(self.clients)])
@@ -433,6 +444,9 @@ class SlaveLocustRunner(DistributedLocustRunner):
             elif msg.type == "config":
                 logger.info("Got new config from master, updating this slave config")
                 configuration.write_file(msg.data['config'])
+            elif msg.type == "python_file":
+                logger.info("Uploaded test file from master detected, writing now")
+                configuration.write_file(msg.data['python_file'])
 
 
     def stats_reporter(self):

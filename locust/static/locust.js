@@ -164,6 +164,28 @@ $(".edit_config_link").click(function(event) {
     
 });
 
+$(".upload_file_link").click(function(event) {
+    event.preventDefault();
+    try{
+        $.ajax({
+            type: "GET",
+            url: "/config/get_config_content",
+            success: function(response){
+                $("#hidden_config_json").val(response.data);
+                $("#start").hide();
+                $("#ramp").hide();
+                $("#upload_file").show();
+                $(".status").addClass("none");
+                $("#config_tab").trigger("click");
+            }
+        }); 
+    }
+    catch(err){
+        alert("Failed to load configuration data.\n\nOriginal error message:\n" + err);
+    }
+    
+});
+
 $('#submit_json_btn').click(function(){
     event.preventDefault();
     $('#hidden_config_json').val(JSON.stringify(json_editor.get(), null , 4));
@@ -180,6 +202,7 @@ $('#json_config_form').submit(function(event) {
         }
     );
 });
+
 
 $('#import_csv_btn').click(function(event) {
     event.preventDefault();

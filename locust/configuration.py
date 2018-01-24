@@ -15,7 +15,7 @@ def read_file():
         with open((os.environ['PYTHONPATH'].split(os.pathsep))[-1] + config_path, "r") as data_file:
             data = data_file.read()
     except Exception as err:
-        logger.info(err)
+        logger.info(err) 
         data = "{}"
     return data
 

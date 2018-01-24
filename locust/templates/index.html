@@ -71,7 +71,7 @@
             </div>
             <div class="padder">
                 <h2>Start new Locust swarm</h2>
-                <form action="/swarm" method="POST" id="swarm_form" class="start-timer">
+                <form action="/swarm" method="POST" id="swarm_form" class="start-timer upload_file">
                     <label for="locust_count">Number of users to simulate</label>
                     <input type="text" name="locust_count" id="locust_count" class="val" />
                     <br>
@@ -88,6 +88,8 @@
                     <br>
                     <br>
                     <a href="#" class="edit_config_link">Edit Config</a>
+                    <br/>
+                    <a href="#" class="upload_file_link">Upload File</a>
                     <button type="submit">Start swarming</button>
                 </form>
                 <div style="clear:right;"></div>
@@ -221,6 +223,75 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="upload_file" id="upload_file" style="display:none">
+            <div class="head_section">
+                <div class="container">
+                    <div class="title_header">Upload file</div>
+                    <!-- <ul id="link_navigation">
+                        <li><a href="#" class="config_new_test">New Test</a></li>
+                        {% if ramp %}
+                            <li><a href="#" class="config_ramp_test">New Ramp</a></li>
+                        {% endif %}
+                    </ul> -->
+                </div>
+            </div>
+            <div class="center_padder container body_section">
+                
+                <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
+                    <label>Path :</label>
+                    <select name="upload_file_path">
+                        <option value="/libs/">libs/</option>
+                        <option value="/modules/">modules/</option>
+                        <option value="/tests/">tests/</option>
+                        <option value="/tests/helper/">tests/helper/</option>
+                        <option value="/tests/modules/">tests/modules/</option>
+                        <option value="/tests/pages/">tests/pages/</option>
+                        <option value="/tests/pages/android/">tests/pages/android/</option>
+                        <option value="/tests/pages/android/no_session/">tests/pages/android/no_session/</option>
+                        <option value="/tests/">tests/pages/android/session/</option>
+                        <option value="/tests/">tests/pages/desktop/</option>
+                        <option value="/tests/">tests/pages/desktop/no_session/</option>
+                        <option value="/tests/">tests/pages/desktop/session/</option>
+                        <option value="/tests/">tests/pages/mobile_web/</option>
+                        <option value="/tests/">tests/pages/mobile_web/no_session/</option>
+                        <option value="/tests/">tests/pages/mobile_web/session/</option>
+                        <option value="/tools/">tools/settings/</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label>File to upload :</label>
+                    <br/>
+                    <input type="file" accept=".py" name="python_file" id="python_file" />
+                    <input type="submit" value="Upload" id="upload_btn" />
+                </form>
+                <!-- <br>
+                <form action="/config/save_json" method="POST" id="json_config_form">
+                    <input type="hidden" id="hidden_config_json" name="final_json" value="{{json_config}}">
+                    <button type="submit" id="submit_json_btn">Save</button>
+                </form> -->
+            </div>
+            <!-- <div class="modal fade" id="modal_confirm_save_json" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h5 class="modal-title" id="myModalLabel">Unsaved Configuration</h5>
+                        </div>
+                        <div class="modal-body">
+                            You have unsaved configuration. Do you want to save it?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" id="not_save_json_btn" data-origin-link="">Don't Save</button>
+                            <button type="button" class="btn btn-primary" id="save_json_btn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
         </div>
 
         <div class="multiple_column" id="multiple_column" style="display:none;">

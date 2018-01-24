@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import csv, re, io, json, os.path
+import csv, re, io, json, os.path, events
 from time import time
 from itertools import chain
 from collections import defaultdict
@@ -8,7 +8,8 @@ from six.moves import StringIO, xrange
 import six
 
 from gevent import wsgi
-from flask import Flask, make_response, request, render_template
+from flask import Flask, make_response, request, render_template, redirect, url_for
+from werkzeug.utils import secure_filename
 
 from . import runners, configuration
 from .cache import memoize
@@ -16,6 +17,7 @@ from .runners import MasterLocustRunner
 from locust.stats import median_from_dict
 from locust import __version__ as version
 import gevent, itertools
+import locust.fileio
 
 
 import logging
@@ -338,6 +340,20 @@ def convert_csv_to_json():
        
         return response
     
+@app.route("/upload_file", methods=["POST"])
+def upload_file():
+    path = request.form.get('upload_file_path')
+    python_file = request.files['python_file']
+    python_file_extension = os.path.splitext(python_file.filename)[1]
+    if not python_file and python_file_extension != ".py":
+        return "Try again with python file with .py extension"
+    try:
+        python_file.save(os.path.join((os.environ['PYTHONPATH'].split(os.pathsep))[-1] + path, python_file.filename))
+    except Exception:
+        logger.info("File is not uploaded. Note that all files deployed can not be overwritten. Try to change it to another name")
+    events.master_new_file_uploaded.fire(uploaded_python_file=python_file.filename)
+    return redirect(url_for('index'))
+
 @app.route("/config/save_json", methods=["POST"])
 def save_json():
     assert request.method == "POST"
