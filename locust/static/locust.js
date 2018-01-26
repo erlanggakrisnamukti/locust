@@ -279,6 +279,21 @@ $('#multiple_column_form').submit(function(event) {
     );
 });
 
+$('#continue_validation').click(function(){
+    event.preventDefault();
+    try {
+        var form = $('#json_validation_form')[0];
+        var form_data = new FormData(form);
+        $.ajax({
+            type    :'POST',
+            url     :'/config/validation/create_new_key',
+            
+        });
+    } catch (error) {
+        
+    }
+})
+
 $('#convert_csv_btn').click(function(){
     event.preventDefault();
     try{
@@ -306,7 +321,17 @@ $('#convert_csv_btn').click(function(){
                     }
                 }
                 else {
-                    alert("Convert error : " + response.message);
+                    if(response.new_variable){
+                        $("#jv_multiple_data_header").val(response.multiple_data_header);
+                        $('#jv_jsonpath').val(response.jsonpath);
+                        $('#jv_options').val(response.options);
+                        $('#jv_config_text').val(response.config_text)
+                        $('#json_validation').show();
+                        $('#multiple_column').hide();
+                    }
+                    else{
+                        alert("Convert error : " + response.message);
+                    }
                 }
             }
         });
@@ -344,10 +369,6 @@ $(".config_ramp_test").click(function(event) {
         $("#init_count").focus().select();
         $(".status").removeClass("none");
     }
-});
-
-$("#new_path_checkbox").change(function(event){
-    $("#type_variable").toggle();
 });
 
 

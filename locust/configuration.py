@@ -5,7 +5,42 @@ from ast import literal_eval
 from flask import make_response
 
 logger = logging.getLogger(__name__)
+<<<<<<< b1e43ce7c5ecd3b11d5158c949df85f04c9dc55b
 CONFIG_PATH = '/tests/settings/config.json'
+=======
+config_path = '/tests/settings/config.json'
+recur_json = None
+
+def read_file():
+    """
+    Will read the file and return it as a string with tree view.
+    """
+    try:
+        with open((os.environ['PYTHONPATH'].split(os.pathsep))[-1] + config_path, "r") as data_file:
+            data = data_file.read()
+    except Exception as err:
+        logger.info(err)
+        data = "{}"
+    return data
+
+def write_file(string_json):
+    """
+    The `string_json` will overwrite existing configuration. 
+    If the previous configuration doesn't exist, then it will create the file.
+    """
+    status, message = None, None
+    try:
+        with open((os.environ['PYTHONPATH'].split(os.pathsep))[-1] + config_path, "w") as data_file:
+            data_file.write(string_json)
+            status = True
+            message = 'Configuration has been saved'
+            events.master_new_configuration.fire(new_config=string_json)
+    except Exception as err:
+        logger.info(err)
+        status = False
+        message = "Can't save the configuration :" + err
+    return status, message
+>>>>>>> 2601-changes-UI validation jsonpath
 
 class ClientConfiguration:
     """
@@ -60,38 +95,57 @@ class ClientConfiguration:
         
         return make_response(json.dumps({'success':True, 'data':json.dumps(data, indent=4)}))
 
-    def add_new_key(self, parent_path, new_key_name, new_key_type, config_text):
+    def add_new_key(self, temppath, new_key_type, config_text):
+        
         data = literal_eval(config_text)
-        data_target = data
-        temppath = parent_path.split('.')
-        child_split = new_key_name.split('.')
+        splitpath = filter(None, temppath.split('.'))
 
-        counts = {}
-        branch = counts
-        for part in child_split[1:]:
-            if part == child_split[-1]:
-                if new_key_type == "string":
-                    branch = branch.setdefault(part, "")
-                elif new_key_type == "object":
-                    branch = branch.setdefault(part, {})
-                else:
-                    branch = branch.setdefault(part, [])
+        return self.create_exist_path(data, splitpath, new_key_type, 1)
+
+    def create_exist_path(self, input_json, splitpath, type_new_key, index):
+        if type(input_json) is dict and input_json:
+            if splitpath[index] in input_json:
+                input_json = input_json[splitpath[index]]
+                self.create_exist_path(input_json, splitpath, type_new_key, index+1)
             else:
-                branch = branch.setdefault(part, {})
+                input_json[splitpath[index]] = {}
+                self.create_exist_path(input_json[splitpath[index]], splitpath, type_new_key, index+1)
+        
+        elif type(input_json) is list and input_json:
+            print("a")
+            for entity in input_json:
+                self.create_exist_path(entity, splitpath, type_new_key, index)
 
-        for x in xrange(1,len(temppath)):
-            data_target = data_target[temppath[x]]
+        elif index < len(splitpath)-1:
+            input_json[splitpath[index]] = {}
+            self.create_exist_path(input_json[splitpath[index]], splitpath, type_new_key, index+1)
+        
+        elif index == len(splitpath)-1:
+            if type_new_key == "number":
+                input_json[splitpath[index]] = 0
+            elif type_new_key == "object":
+                input_json[splitpath[index]] = {}
+            elif type_new_key == "array":
+                input_json[splitpath[index]] = []
+            else:
+                input_json[splitpath[index]] = ""
+            return
 
-        for y in xrange(0,len(data_target)):
-            data_target[y][child_split[0]] = counts
-            path = parent_path + "[" + str(y) + "]"
-            jsonpath_expr = parse(path)
-            matches = jsonpath_expr.find(data)
+        if index == 1:
+            if splitpath[index] in input_json:
+                return input_json
+            else:
+                return {splitpath[index]:input_json}
+    
+    def check_path_exist(data_json, json_path):
+        jsonpath_expr = parse(json_path)
+        matches = jsonpath_expr.find(data_json)
 
-            for match in matches:
-                data = ClientConfiguration.update_json(data, ClientConfiguration.get_path(match), data_target[y])
+        if len(matches)==0:
+            return False
+        else:
+            return True
 
-        return data
         
     @classmethod    
     def get_path(self, match):
