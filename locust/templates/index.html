@@ -285,21 +285,8 @@
                         <input type="text" name="jsonpath" id="jsonpath" class="val" required/>
                         <small>Example : $.production.accounts (data belongs to accounts section, where accounts belongs to production section)</small>
                         <br>
-                        <input type="checkbox" id="new_path_checkbox" name="new_path_checkbox" value="new_path"/> New path on list
                     </div>
                     <br>
-                    <!-- <div id="type_variable" name="type_variable" style="display:none">
-                        <label for="new_column" title="JsonPath as new column">Last variable type</label>
-                        <div>
-                            <select id="last_var_type" name="last_var_type">
-                                <option value="string">String</option>
-                                <option value="array">Array</option>
-                                <option value="object">Object</option>
-                                <option value="number">Number</option>
-                            </select>
-                        </div>
-                        <br>
-                    </div> -->
 
                     <div class="required_field">
                         <label for="json_option" title="Choose desired action for current data">Action</label>
@@ -320,34 +307,27 @@
         </div>
 
         <div class="json_validation" id="json_validation" style="display:none;">
-            <div style="position:relative;">
-                <a href="#" class="close_link">Close</a>
-            </div>
             <div class="padder">
-                <h2>JSON Path Validation</h2>
+                <h2>JSON Path Validation</h2><br>
                 <form action="/config/validation/create_new_key" method="POST" id="json_validation_form">
-                    <input type="hidden" id="jv_multiple_data_header" name="jv_multiple_data_headers" />
-                    <input type="hidden" id="jv_jsonpath" name="jv_jsonpath" />
-                    <input type="hidden" id="jv_options" name="jv_options" />
-                    <input type="hidden" id="jv_config_text" name="jv_config_text" />
-                    <label>Key </label><label id="key_not_found /"><label> not found. Select last data type to create new key</label>
-                    <br>
-
-                    <div id="type_variable" name="type_variable" style="display:none">
-                        <label for="new_column" title="JsonPath as new column">Last variable type</label>
+                    Key <label id="key_not_found" >lorem</label> not found in <label id="jsonpath_label">ipsum</label>. Select <label id="last_variable_1">dolor</label> type to create new key
+                    <br><br>
+                    <div id="type_variable" name="type_variable">
+                        <label for="new_column" title="JsonPath as new column">Select type of variable &nbsp;</label><label id="last_variable_2">amet</label><br>
                         <div>
                             <select id="last_var_type" name="last_var_type">
+                                <option value="object">Object</option>
                                 <option value="string">String</option>
                                 <option value="array">Array</option>
-                                <option value="object">Object</option>
                                 <option value="number">Number</option>
                             </select>
                         </div>
                         <br>
                     </div>
-
-                    <button id="abort_validation">Abort</button>
-                    <button id="continue_validation">Continue</button>
+                    <div>
+                        <button id="continue_validation">Continue</button>
+                        <button id="abort_validation">Abort</button>
+                    </div>
                 </form>
                 <div style="clear:right;"></div>
             </div>

@@ -18,6 +18,7 @@ from .cache import memoize
 from .runners import MasterLocustRunner
 from locust.stats import median_from_dict
 from locust import __version__ as version
+from ast import literal_eval
 import gevent, itertools
 import fileio
 import base64
@@ -316,7 +317,6 @@ def config_csv():
 def convert_csv_to_json():
     try:
         multiple_data_headers = request.form.getlist('headers_checkbox')
-        newpath_checkbox = request.form.getlist('new_path_checkbox')
         jsonpath = str(request.form['jsonpath'])
         options = request.form['json_option']
         config_text = request.form["multiple_form_final_json"]
@@ -324,69 +324,42 @@ def convert_csv_to_json():
         data_json = literal_eval(config_text)
         cc = configuration.ClientConfiguration()
         
-        if cc.check_path_exist(data_json, jsonpath):
-            print("data json : ", data_json)
-            if jsonpath.strip() and options:
-                global csv_stream
-                report = {}
-                report['success'] = True
-                if(len(multiple_data_headers) > 0):
-                    tempStr = csv_stream.convert(multiple_data_headers)
-                    report['data'] = tempStr
-                else:
-                    tempStr = csv_stream.convert([])
-                    if len(csv_stream.get_columns_name()) > 1:
-                        report['data'] = tempStr
-                    else:
-                        report['data'] = tempStr.get(csv_stream.get_columns_name()[0])
-
-                cc = configuration.ClientConfiguration()
-                response = cc.update_json_config(data_json, report['data'], jsonpath, options, csv_stream.get_columns_name(), config_text)
-                response.headers["Content-type"] = "application/json"
-                
-                return response
+        if jsonpath.strip() and options:
+            global csv_stream
+            json_added = cc.convert_to_json(csv_stream, multiple_data_headers)
+            status, message = cc.check_key(data_json, jsonpath)
+            if status:
+                response = cc.update_json_config(data_json, json_added, jsonpath, options, len(csv_stream.get_columns_name()))
             else:
-                response = make_response(json.dumps({'success':False, 'new_variable':False, 'message':'Please fill in or select required field.'}))
-                response.headers["Content-type"] = "application/json"
-            
+                response = make_response(json.dumps({'success':False, 'error_type':'JSON not found', 'data': {'missing_element':message, 'last_variable':cc.get_last_variable(jsonpath)}, 'message':'missing element jsonpath on json'}))
         else:
-            last_var_type = str(request.form["last_var_type"])
-            
-            data_json = cc.add_new_key(jsonpath, last_var_type, config_text)
-            print("data_json : ",data_json)
-            response = make_response(json.dumps({'success':False, 'new_variable':True, 'data':json.dumps(data_json, indent=4), 'multiple_data_headers':multiple_data_headers,
-                'jsonpath':jsonpath, 'options':options, 'config_text':config_text}))
-            response.headers["Content-type"] = "application/json"
+            raise BadRequestKeyError
 
-        return response
-    
     except Exception,e:
         if type(e).__name__ == 'BadRequestKeyError':
-            response = make_response(json.dumps({'success':False, 'new_variable':False, 'message':'Please fill in or select required field.'}))
+            response = make_response(json.dumps({'success':False, 'error_type':'unfulfilled required field', 'message':'Please fill in or select required field.'}))
         else:
-            response = make_response(json.dumps({'success':False, 'new_variable':False, 'message': str(e)}))
-        response.headers["Content-type"] = "application/json"
-       
-        return response
+            response = make_response(json.dumps({'success':False, 'error_type':'unfulfilled required field', 'message': str(e)}))
+    
+    response.headers["Content-type"] = "application/json"   
+    return response
 
-@app.route("/config/validation/create_new_key", method=["POST"])
+@app.route("/config/validation/create_new_key", methods=["POST"])
 def validation_create_new_key():
-    try:
-        multiple_data_headers = request.form.getlist('headers_checkbox')
-        newpath_checkbox = request.form.getlist('new_path_checkbox')
-        jsonpath = request.form['jsonpath'])
-        options = request.form['json_option']
-        config_text = request.form["multiple_form_final_json"]
-        last_var_type = str(request.form["last_var_type"])
+    dataDict = request.json
+    last_var_type = dataDict['last_var_type']
 
-        ClientConfiguration cc = new ClientConfiguration()
-        data_json = cc.add_new_key(jsonpath, last_var_type, config_text)
-        response = make_response(json.dumps({'success':True, 'data':json.dumps(data_json, indent=4)}))
-        response.headers["Content-type"] = "application/json"
-        return response
+    multiple_data_headers = dataDict['multiple_data_headers']
+    jsonpath = dataDict['jsonpath']
+    json_option = dataDict['options']
+    config_text = dataDict['config_text']
 
-    except expression as identifier:
-        pass
+    cc = configuration.ClientConfiguration()
+    data_json = cc.add_new_key(jsonpath, last_var_type, config_text)
+    global csv_stream
+    response = cc.update_json_config(data_json, cc.convert_to_json(csv_stream, multiple_data_headers), jsonpath, json_option, len(csv_stream.get_columns_name()))
+    response.headers["Content-type"] = "application/json"
+    return response
     
 @app.route("/upload_file", methods=["POST"])
 def upload_file():
@@ -434,8 +407,3 @@ def _sort_stats(stats):
 
 def transform(text_file_contents):
     return text_file_contents.replace("=", ",")
-
-def convert_csv():
-
-
-
