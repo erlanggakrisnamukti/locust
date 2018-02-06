@@ -263,20 +263,6 @@ def parse_options():
     opts, args = parser.parse_args()
     return parser, opts, args
 
-
-def collect_locustfiles(path):
-    collected = dict()
-
-    for root, dirs, files in os.walk(path):
-        if files:
-            for file_ in files:
-                if file_.endswith('.py') and not file_.endswith('__init__.py'):
-                    fullpath = os.path.abspath(os.path.join(root, file_))
-                    loaded = tests_loader.load_locustfile(fullpath)
-                    if loaded:
-                        collected.update(loaded)
-    return collected
-
 def main():
     parser, options, arguments = parse_options()
 
@@ -289,7 +275,7 @@ def main():
         sys.exit(0)
 
     if os.path.isdir(options.locustfile):
-        all_locustfiles = collect_locustfiles(options.locustfile)
+        all_locustfiles = tests_loader.collect_locustfiles(options.locustfile)
     else:
         locustfile = tests_loader.find_locustfile(options.locustfile)
 

@@ -362,15 +362,18 @@ def upload_file():
     python_file_extension = os.path.splitext(python_file.filename)[1]
     python_file_content = python_file.read()
     if not python_file and python_file_extension != ".py":
-        return make_response(json.dumps({'success':False, 'message':"Can't upload this file. Please try again with python file with .py extension"}))
+        return expected_response({'success':False, 'message':"Can't upload this file. Please try again with python file with .py extension"})
     upload_status,upload_message = fileio.write(python_file_path, python_file_content)
     if upload_status is False :
-        return make_response(json.dumps({'success':False, 'message':upload_message}))
+        return expected_response({'success':False, 'message':upload_message})
     events.master_new_file_uploaded.fire(new_file={"full_path": python_file_path, "name": python_file.filename, "content":python_file_content})
-    response = make_response(json.dumps({'success':True, 'message':""}))
+    runners.locust_runner.reload_tests()
+    return expected_response({'success':True, 'message':""})
+
+def expected_response(json_dumps):
+    response = make_response(json.dumps(json_dumps))
     response.headers["Content-type"] = "application/json"
     return response
-
 
 @app.route("/config/save_json", methods=["POST"])
 def save_json():

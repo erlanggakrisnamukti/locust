@@ -68,7 +68,7 @@
         <div class="start" id="start">
             <div class="padder">
                 <h2>Start new Locust swarm</h2>
-                <form action="/swarm" method="POST" id="swarm_form" class="start-timer upload_file">
+                <form action="/swarm" method="POST" id="swarm_form" class="start-timer">
                     <label for="locust_count">Number of users to simulate</label>
                     <input type="text" name="locust_count" id="locust_count" class="val" />
                     <br>
@@ -79,6 +79,7 @@
                     <label for="locustfile">Locust file to execute</label>
                     <div class="input-group">
                     <select name="locustfile" id="locustfile" class="select2 select2-hidden-accessible select2-start-width" placeholder="Select type">
+                        <option value="" disabled selected>Select/Upload a test file</option>
                         <option value="add_new_test_file">Upload test file</option>
                         {% for name in available_locustfiles %}
                             <option value="{{name}}">{{name}}</option>
@@ -107,7 +108,7 @@
                     <h4 class="modal-title">Are you sure?</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Creating new test will erase all current test result</p>
+                    <p>Creating new test will erase all current test result?</p>
                 </div>
                 <div class="modal-footer">
                     <form action="/new" method="POST">
@@ -118,20 +119,19 @@
                 </div>
             </div>
         </div>
-        <div id="addNewFileModal" class="modal fade" role="dialog">
+        <div id="add-new-file-modal" class="modal fade" role="dialog">
             <div class="modal-dialog">
           
               <!-- Modal content-->
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h4 class="modal-title">Upload test file</h4>
+                  <h4 class="modal-title">Upload Test File</h4>
                 </div>
                 <div class="modal-body">
                     <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
                         <label>Path :</label>
                         <select name="upload_directory" id="directories" class="select2">
-                            <option></option>
                             {% for value in test_file_directories %}
                                 <option value="{{value}}">{{value}}</option>
                             {% endfor %}
@@ -141,6 +141,7 @@
                         <label>File to upload :</label>
                         <br/>
                         <input type="file" accept=".py" name="python_file" id="python_file" />
+                        <br/>
                         <input type="submit" value="Upload" id="upload_btn_submit" />
                     </form>
                 </div>

@@ -23,7 +23,7 @@ def write(file_path, file_content):
     except IOError as err:
         logger.info("error write: " + err.strerror )
         status = False
-        message = "Can't save the file: " + err.strerror
+        message = "Can't overwrite protected file. Please rename your test file. i.e : home_production_dilan.py"
     return status, message
 
 def os_path():

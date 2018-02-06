@@ -5,11 +5,11 @@ $(window).ready(function() {
     }
 });
 
-$("#locustfile").on('select2:close', function(){
+$("#locustfile").on('select2:close', function(event){
     event.preventDefault();
     var el = $(this);
     if(el.val()==="add_new_test_file") {
-        $('#addNewFileModal').modal('show'); 
+        $('#add-new-file-modal').modal('show'); 
     }
     
 });
@@ -169,15 +169,7 @@ $(".edit_config_link").click(function(event) {
     
 });
 
-$(".upload_file_link").click(function(event) {
-    event.preventDefault();
-    $("#start").hide();
-    $("#ramp").hide();
-    $("#upload_file").show();
-    $(".status").addClass("none");
-});
-
-$('#upload_btn_submit').click(function(){
+$('#upload_btn_submit').click(function(event){
     event.preventDefault();
     $('#upload_file_form').submit();
 });
@@ -201,6 +193,8 @@ $('#upload_file_form').submit(function(event) {
         success: function (response) {
             if (response.success) {
                 location.reload(true);
+            } else {
+                alert(response.message);
             }
         }
     })

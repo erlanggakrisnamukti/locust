@@ -260,7 +260,6 @@ class MasterLocustRunner(DistributedLocustRunner):
             @property
             def running(self):
                 return self.get_by_state(STATE_RUNNING)
-
         self.clients = SlaveNodesDict()
         self.server = rpc.Server(self.master_bind_host, self.master_bind_port)
         self.greenlet = Group()
