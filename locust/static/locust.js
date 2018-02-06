@@ -1,5 +1,5 @@
 $(window).ready(function() {
-    $('.select2').select2({theme: 'bootstrap', width: "97.3%"});
+    $('.select2').select2({theme: 'bootstrap', width: "100%"});
     if($("#locust_count").length > 0) {
         $("#locust_count").focus().select();
     }
@@ -180,6 +180,10 @@ $(".upload_file_link").click(function(event) {
 $('#upload_btn_submit').click(function(){
     event.preventDefault();
     $('#upload_file_form').submit();
+});
+
+$("#directories .select2").select2({
+    placeholder: "Select a state"
 });
 
 $('#upload_file_form').submit(function(event) {

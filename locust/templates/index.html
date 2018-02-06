@@ -76,7 +76,7 @@
                     <input type="text" name="hatch_rate" id="hatch_rate" class="val" />
                     <br>
                     <input type="hidden" name="type_swarm" value="start">
-                    <label for="locustfile"><i>Locust file to execute</i></label>
+                    <label for="locustfile">Locust file to execute</label>
                     <div class="input-group">
                     <select name="locustfile" id="locustfile" class="select2 select2-hidden-accessible select2-start-width" placeholder="Select type">
                         <option value="add_new_test_file">Upload test file</option>
@@ -107,7 +107,7 @@
                     <h4 class="modal-title">Are you sure?</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Creating new test will refresh all the data in charts.</p>
+                    <p>Creating new test will erase all current test result</p>
                 </div>
                 <div class="modal-footer">
                     <form action="/new" method="POST">
@@ -131,6 +131,7 @@
                     <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
                         <label>Path :</label>
                         <select name="upload_directory" id="directories" class="select2">
+                            <option></option>
                             {% for value in test_file_directories %}
                                 <option value="{{value}}">{{value}}</option>
                             {% endfor %}
@@ -266,33 +267,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="upload_file" id="upload_file" style="display:none">
-            <div class="head_section">
-                <div class="container">
-                    <div class="title_header">Upload test file to the destination path</div>
-                    <ul id="link_navigation">
-                    </ul>
-                </div>
-            </div>
-            <div class="center_padder container body_section">
-                
-                <form method="POST" id="upload_file_form" enctype="multipart/form-data" action="/upload_file">
-                    <label>Path :</label>
-                    <select name="upload_directory" id="directories" class="select2">
-                        {% for value in test_file_directories %}
-                            <option value="{{value}}">{{value}}</option>
-                        {% endfor %}
-                    </select>
-                    <br/>
-                    <br/>
-                    <label>File to upload :</label>
-                    <br/>
-                    <input type="file" accept=".py" name="python_file" id="python_file" />
-                    <input type="submit" value="Upload" id="upload_btn_submit" />
-                </form>
             </div>
         </div>
 

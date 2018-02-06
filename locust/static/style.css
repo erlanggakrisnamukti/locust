@@ -565,6 +565,9 @@ ul.tabs li a.current:after {
     overflow: hidden;
 }
 
+#addNewFileModal{
+    padding-left : 15px; 
+}
 #addNewFileModal, #new-test-confirmation {
     width: 398px;
     position: absolute;
@@ -580,7 +583,7 @@ ul.tabs li a.current:after {
     box-shadow: 0 0 120px rgba(0,0,0,0.3);
 }
 #new-test-confirmation {
-    height: 200px;
+    height: 160px;
 }
 #addNewFileModal .modal-dialog, #new-test-confirmation .modal-dialog{
     display: flex;
@@ -595,7 +598,14 @@ ul.tabs li a.current:after {
 #addNewFileModal .close, #new-test-confirmation .close {
     color: #addf82;
 }
-#new-test-confirmation .modal-body {
+#new-test-confirmation .modal-header .close, #addNewFileModal .close{
+    margin-right: -25px;
+    padding: 3px;
+}
+
+#new-test-confirmation .modal-body, #addNewFileModal .modal-body {
+    padding-top: 25px;
+    padding-bottom: 0px;
     color: white;
 }
 #new-test-confirmation .modal-footer {
@@ -604,7 +614,7 @@ ul.tabs li a.current:after {
 }
 #new-test-confirmation .btn-newtest {
     padding: 8px 30px;
-    margin: 5px 5px;
+    margin: 3px 3px;
 }
 #addNewFileModal .modal-content, #new-test-confirmation .modal-content {
     background-color: #132b21;
