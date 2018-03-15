@@ -301,8 +301,15 @@ class ClientConfiguration:
         """
         iteration_json_config = None
         missing_data_key_csv = []
+        temp_index_search = []
+        ori_options = options
         for y in xrange(0,len(new_config_data_added)):
             index_search = self.find_index(data_json, key_json, new_config_data_added[y][key_csv])
+            if index_search in temp_index_search:
+                options = "append"
+            else:
+                temp_index_search.append(index_search)
+                options = ori_options
             if index_search < 0:
                 missing_data_key_csv.append(new_config_data_added[y][key_csv])
             else:

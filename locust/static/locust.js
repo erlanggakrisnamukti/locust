@@ -270,6 +270,7 @@ $('#abort_validation').click(function(){
     $(".multiple_column").hide();
     $(".json_validation").hide();
     $("#column_name").empty();
+    $('#multiple_column_form')[0].reset();
     document.getElementById("import_csv_form").reset(); 
     document.getElementById("jsonpath").value = "";
     document.getElementById("json_option").checked = false;
@@ -307,8 +308,11 @@ $('#continue_validation').click(function(event) {
                     $('#json_validation').hide();
                     $("#column_name").empty();
                     document.getElementById("import_csv_form").reset();
+                    $('#multiple_column_form')[0].reset();
+                    $("#key_csv_json").hide();
                 }
                 catch(err){
+                    $('#multiple_column_form')[0].reset();
                     alert(err.message);
                 }
             }
@@ -330,6 +334,8 @@ $('#multiple_column_form').submit(function(event) {
                     $(".multiple_column").hide();
                     $("#column_name").empty();
                     document.getElementById("import_csv_form").reset();
+                    $('#multiple_column_form')[0].reset();
+                    $("#key_csv_json").hide();
                 }
                 catch(err){
                     alert(err.message);
@@ -359,6 +365,8 @@ $('#convert_csv_btn').click(function(){
             success: function(response){
                 if (response.success) {
                     try{
+                        $('#multiple_column_form')[0].reset();
+                        $("#key_csv_json").hide();
                         if (response.missing_key_message.length > 0)
                             alert(response.missing_key_message);
                         json_editor.set(JSON.parse(response.data.json_data));
@@ -379,7 +387,7 @@ $('#convert_csv_btn').click(function(){
                             config_text = document.getElementById('multiple_hidden_config_json');
                             var e = document.getElementById('input_type');
                             input_type = e.options[e.selectedIndex];
-                            if(input_type != "all_data") {
+                            if(input_type.value != "all_data") {
                                 input_method = document.querySelector('input[name="input_method_opt"]:checked');
                                 if(input_method.value == "depend_on_key") {
                                     key_json = document.getElementById('key_json')
