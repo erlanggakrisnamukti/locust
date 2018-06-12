@@ -5,9 +5,7 @@ class TestSuite(object):
         self._id = 'TSU-'+int(time.time())
         self._name = kwargs.get('name', None)
         self._test_cases = kwargs.get('test_cases', [])
-
-    def get_test_case(self, index):
-        return self._test_cases[index]
+        self._path = kwargs.get('path', None)
 
     @property
     def get_test_cases(self):
@@ -26,9 +24,6 @@ class TestCase(object):
         self._status = kwargs.get('status', None)
         self._time_start = kwargs.get('time_start', None)
         self._time_end = kwargs.get('time_end', None)
-
-    def get_test_step(self, index):
-        return self._test_steps[index]
 
     @property
     def get_test_steps(self):
@@ -69,7 +64,7 @@ class TestStep(object):
         self._name = kwargs.get('name', None)
         self._status = kwargs.get('status', None)
         self._time_start = kwargs.get('time_start', None)
-        self._time_end = kwarts.get('time_end', None)
+        self._time_end = kwargs.get('time_end', None)
         self._repetition_index = kwargs.get('repetition_index', None)
         self._request = kwargs.get('request', None)
         self._response = kwargs.get('response', None)
