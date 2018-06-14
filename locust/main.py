@@ -315,8 +315,11 @@ def main():
         # docstring, all_locustsfiles = load_locustfile(locustfile)
         all_locustfiles = tests_loader.load_locustfile(locustfile)
 
-    # Use the first locustfile for the default locusts
-    locusts = all_locustfiles.values()[0]
+    if options.integration :
+        locusts = dict(list((locustfile.keys()[0],locustfile.values()[0]) for locustfile in all_locustfiles.values()))
+    else :
+        # Use the first locustfile for the default locusts
+        locusts = all_locustfiles.values()[0]
 
     if options.list_commands:
         console_logger.info("Available Locusts:")
