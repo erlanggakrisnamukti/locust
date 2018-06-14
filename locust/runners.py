@@ -76,15 +76,18 @@ class LocustRunner(object):
                 warnings.warn("Notice: Found Locust class (%s) got no task_set. Skipping..." % locust.__name__)
                 continue
 
-            if self.host is not None:
-                locust.host = self.host
-            if stop_timeout is not None:
-                locust.stop_timeout = stop_timeout
+            if self.options.integration :
+                bucket.append(locust)
+            else :
+                if self.host is not None:
+                    locust.host = self.host
+                if stop_timeout is not None:
+                    locust.stop_timeout = stop_timeout
 
-            # create locusts depending on weight
-            percent = locust.weight / float(weight_sum)
-            num_locusts = int(round(amount * percent))
-            bucket.extend([locust for x in xrange(0, num_locusts)])
+                # create locusts depending on weight
+                percent = locust.weight / float(weight_sum)
+                num_locusts = int(round(amount * percent))
+                bucket.extend([locust for x in xrange(0, num_locusts)])
         return bucket
 
     def spawn_locusts(self, spawn_count=None, stop_timeout=None, wait=False):
@@ -102,6 +105,9 @@ class LocustRunner(object):
         else:
             self.num_clients += spawn_count
 
+        if self.options.integration :
+            self.hatch_rate = self.num_clients
+
         logger.info("Hatching and swarming %i clients at the rate %g clients/s..." % (spawn_count, self.hatch_rate))
         occurence_count = dict([(l.__name__, 0) for l in self.locust_classes])
         
@@ -113,7 +119,10 @@ class LocustRunner(object):
                     events.hatch_complete.fire(user_count=self.num_clients)
                     return
 
-                locust = bucket.pop(random.randint(0, len(bucket)-1))
+                if self.options.integration :
+                    locust = bucket.pop(len(bucket)-1)
+                else :
+                    locust = bucket.pop(random.randint(0, len(bucket)-1))
                 occurence_count[locust.__name__] += 1
                 def start_locust(_):
                     try:

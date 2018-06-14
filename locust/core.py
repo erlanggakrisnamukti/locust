@@ -147,6 +147,7 @@ class TaskSetMeta(type):
     
     def __new__(mcs, classname, bases, classDict):
         new_tasks = []
+        new_integration_tasks = []
         for base in bases:
             if hasattr(base, "tasks") and base.tasks:
                 new_tasks += base.tasks
@@ -166,10 +167,12 @@ class TaskSetMeta(type):
         
         for item in six.itervalues(classDict):
             if hasattr(item, "locust_task_weight"):
+                new_integration_tasks.append(item)
                 for i in xrange(0, item.locust_task_weight):
                     new_tasks.append(item)
         
         classDict["tasks"] = new_tasks
+        classDict["integration_tasks"] = new_integration_tasks
         
         return type.__new__(mcs, classname, bases, classDict)
 
@@ -206,6 +209,8 @@ class TaskSet(object):
         class ForumPage(TaskSet):
             tasks = {ThreadPage:15, write_post:1}
     """
+
+    integration_tasks = []
     
     min_wait = None
     """
@@ -266,38 +271,54 @@ class TaskSet(object):
             else:
                 six.reraise(RescheduleTask, RescheduleTask(e.reschedule), sys.exc_info()[2])
         
-        while (True):
-            try:
-                if self.locust.stop_timeout is not None and time() - self._time_start > self.locust.stop_timeout:
-                    return
-        
-                if not self._task_queue:
-                    self.schedule_task(self.get_next_task())
-                
-                try:
+        if not runners.locust_runner is None and runners.locust_runner.options.integration :
+            while self.integration_tasks :
+                try :
+                    self.schedule_task(self.get_next_integration_task())
                     self.execute_next_task()
-                except RescheduleTaskImmediately:
-                    pass
-                except RescheduleTask:
-                    self.wait()
-                else:
-                    self.wait()
-            except InterruptTaskSet as e:
-                if e.reschedule:
-                    six.reraise(RescheduleTaskImmediately, RescheduleTaskImmediately(e.reschedule), sys.exc_info()[2])
-                else:
-                    six.reraise(RescheduleTask, RescheduleTask(e.reschedule), sys.exc_info()[2])
-            except StopLocust:
-                raise
-            except GreenletExit:
-                raise
-            except Exception as e:
-                events.locust_error.fire(locust_instance=self, exception=e, tb=sys.exc_info()[2])
-                if self.locust._catch_exceptions:
-                    sys.stderr.write("\n" + traceback.format_exc())
-                    self.wait()
-                else:
+                except StopLocust:
                     raise
+                except GreenletExit:
+                    raise
+                except Exception as e:
+                    events.locust_error.fire(locust_instance=self, exception=e, tb=sys.exc_info()[2])
+                    if self.locust._catch_exceptions:
+                        sys.stderr.write("\n" + traceback.format_exc())
+                    else:
+                        raise
+        else :    
+            while (True):
+                try:
+                    if self.locust.stop_timeout is not None and time() - self._time_start > self.locust.stop_timeout:
+                        return
+            
+                    if not self._task_queue:
+                        self.schedule_task(self.get_next_task())
+                    
+                    try:
+                        self.execute_next_task()
+                    except RescheduleTaskImmediately:
+                        pass
+                    except RescheduleTask:
+                        self.wait()
+                    else:
+                        self.wait()
+                except InterruptTaskSet as e:
+                    if e.reschedule:
+                        six.reraise(RescheduleTaskImmediately, RescheduleTaskImmediately(e.reschedule), sys.exc_info()[2])
+                    else:
+                        six.reraise(RescheduleTask, RescheduleTask(e.reschedule), sys.exc_info()[2])
+                except StopLocust:
+                    raise
+                except GreenletExit:
+                    raise
+                except Exception as e:
+                    events.locust_error.fire(locust_instance=self, exception=e, tb=sys.exc_info()[2])
+                    if self.locust._catch_exceptions:
+                        sys.stderr.write("\n" + traceback.format_exc())
+                        self.wait()
+                    else:
+                        raise
     
     def execute_next_task(self):
         task = self._task_queue.pop(0)
@@ -314,7 +335,7 @@ class TaskSet(object):
         else:
             # task is a function
             task(self, *args, **kwargs)
-    
+
     def schedule_task(self, task_callable, args=None, kwargs=None, first=False):
         """
         Add a task to the Locust's task execution queue.
@@ -334,6 +355,9 @@ class TaskSet(object):
     
     def get_next_task(self):
         return random.choice(self.tasks)
+
+    def get_next_integration_task(self):
+        return self.integration_tasks.pop(0) if len(self.integration_tasks) > 0 else None
     
     def wait(self):
         millis = random.randint(self.min_wait, self.max_wait)
@@ -377,4 +401,11 @@ class TaskSet(object):
         Reference to runners.py
         """
         return runners.locust_runner
+
+    @property
+    def is_integration(self):
+        """
+        Reference to runners.locust_runner.options.integration in runners.py
+        """
+        return runners.locust_runner.options.integration if not runners.locust_runner is None else False
 
