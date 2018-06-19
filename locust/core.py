@@ -5,7 +5,8 @@ import traceback
 from time import time
 
 import gevent
-from . import runners
+from . import runners, test_object
+from .test_object import TestSuite, TestCase, TestStep
 from gevent import monkey, GreenletExit
 import six
 
@@ -135,8 +136,21 @@ class HttpLocust(Locust):
         super(HttpLocust, self).__init__(runner=runner)
         if self.host is None:
             raise LocustError("You must specify the base host. Either in the host attribute in the Locust class, or on the command line using the --host option.")
-        
-        self.client = HttpSession(base_url=self.host)
+
+        class IntegrationHttpSession(HttpSession):
+            current_test_case = None
+            def request(self, method, url, name=None, catch_response=False, **kwargs):
+                print(self.current_test_case.name)
+                response = super(IntegrationHttpSession, self).request(method, url, name=None, catch_response=False, **kwargs)
+                
+                test_step = TestStep(name="Call %s" % (url), status=False)
+                test_object.test_suites[self.current_test_case.test_suite_id].test_cases[self.current_test_case.id].append_test_step(test_step)
+                return response
+
+        if not runners.locust_runner is None and runners.locust_runner.options.integration :
+            self.client = IntegrationHttpSession(base_url=self.host)
+        else :
+            self.client = HttpSession(base_url=self.host)
 
 
 class TaskSetMeta(type):
@@ -211,6 +225,8 @@ class TaskSet(object):
     """
 
     integration_tasks = []
+
+    test_suite = None
     
     min_wait = None
     """
@@ -257,6 +273,11 @@ class TaskSet(object):
             self.min_wait = self.locust.min_wait
         if not self.max_wait:
             self.max_wait = self.locust.max_wait
+
+        if not runners.locust_runner is None and runners.locust_runner.options.integration :
+            self.test_suite = TestSuite(name=self.__class__.__name__)
+            self.send_test_suite()
+        
 
     def run(self, *args, **kwargs):
         self.args = args
@@ -322,7 +343,15 @@ class TaskSet(object):
     
     def execute_next_task(self):
         task = self._task_queue.pop(0)
+        if not runners.locust_runner is None and runners.locust_runner.options.integration :
+            test_case = TestCase(name=task["callable"].func_name)
+            self.test_suite.append_test_case(test_case.id,test_case)
+            self.send_test_suite()
+            self.locust.client.current_test_case = test_case
         self.execute_task(task["callable"], *task["args"], **task["kwargs"])
+
+    def send_test_suite(self):
+        test_object.set_test_suite(self.test_suite.id,self.test_suite)
     
     def execute_task(self, task, *args, **kwargs):
         # check if the function is a method bound to the current locust, and if so, don't pass self as first argument

@@ -1,37 +1,61 @@
 import time
 
+test_suites = dict()
+
+def set_test_suite(key, test_suite):
+    test_suites[key] = test_suite
+
+def get_test_suite(key):
+    return test_suites[key]
+
 class TestSuite(object):
     def __init__(self, **kwargs):
-        self._id = 'TSU-'+int(time.time())
+        self._id = 'TSU-%s' % (int(time.time()))
         self._name = kwargs.get('name', None)
-        self._test_cases = kwargs.get('test_cases', [])
-        self._path = kwargs.get('path', None)
+        self.test_cases = kwargs.get('test_cases', dict())
+    
+    @property
+    def id(self):
+        return self._id
 
     @property
-    def get_test_cases(self):
-        return self._test_cases
+    def name(self):
+        return self._name
 
-    @property
-    def append_test_case(self, test_case):
-        self._test_cases.append(test_case)
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    def append_test_case(self, key, test_case):
+        test_case.test_suite_id = self._id
+        self.test_cases[key] = test_case
+        return test_case
 
 
 class TestCase(object):
     def __init__(self, **kwargs):
-        self._id = 'TC-'+int(time.time())
+        self._id = 'TC-%s' % (int(time.time()))
         self._name = kwargs.get('name', None)
-        self._test_steps = kwargs.get('test_steps', [])
+        self.test_steps = kwargs.get('test_steps', [])
         self._status = kwargs.get('status', None)
         self._time_start = kwargs.get('time_start', None)
         self._time_end = kwargs.get('time_end', None)
+        self._test_suite_id = kwargs.get('test_suite_id', None)
 
-    @property
-    def get_test_steps(self):
-        return self._test_steps
-
-    @property
     def append_test_step(self, test_step):
-        self._test_steps.append(test_step)
+        self.test_steps.append(test_step)
+
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     @property
     def status(self):
@@ -40,6 +64,14 @@ class TestCase(object):
     @status.setter
     def status(self, status):
         self._status = status
+
+    @property
+    def test_suite_id(self):
+        return self._test_suite_id
+
+    @test_suite_id.setter
+    def test_suite_id(self, test_suite_id):
+        self._test_suite_id = test_suite_id
 
     @property
     def time_start(self):
@@ -60,7 +92,7 @@ class TestCase(object):
 
 class TestStep(object):
     def __init__(self, **kwargs):
-        self._id = 'TST-'+int(time.time())
+        self._id = 'TST-%s' % (int(time.time()))
         self._name = kwargs.get('name', None)
         self._status = kwargs.get('status', None)
         self._time_start = kwargs.get('time_start', None)
@@ -109,7 +141,7 @@ class TestStep(object):
     def request(self, request):
         self._request = request
 
-   @property
+    @property
     def response(self):
         return self._response
 
