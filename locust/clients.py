@@ -3,10 +3,10 @@ import time
 
 import requests
 import six
+from assertion import Assertion
 from requests import Request, Response
 from requests.auth import HTTPBasicAuth
-from requests.exceptions import (InvalidSchema, InvalidURL, MissingSchema,
-                                 RequestException)
+from requests.exceptions import (InvalidSchema, InvalidURL, MissingSchema, RequestException)
 
 from six.moves.urllib.parse import urlparse, urlunparse
 
@@ -180,6 +180,7 @@ class ResponseContextManager(LocustResponse):
     def __init__(self, response):
         # copy data from response to this object
         self.__dict__ = response.__dict__
+        self.asserting = Assertion(self)
     
     def __enter__(self):
         return self
