@@ -10,7 +10,7 @@ from requests.exceptions import (InvalidSchema, InvalidURL, MissingSchema, Reque
 
 from six.moves.urllib.parse import urlparse, urlunparse
 
-from . import events
+from . import events, runners
 from .exception import CatchResponseError, ResponseError
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
@@ -124,7 +124,7 @@ class HttpSession(requests.Session):
             request_meta["content_size"] = int(response.headers.get("content-length") or 0)
         else:
             request_meta["content_size"] = len(response.content or "")
-        
+
         if catch_response:
             response.locust_request_meta = request_meta
             return ResponseContextManager(response)
@@ -154,7 +154,9 @@ class HttpSession(requests.Session):
         Safe mode has been removed from requests 1.x.
         """
         try:
-            return requests.Session.request(self, method, url, **kwargs)
+            response = requests.Session.request(self, method, url, **kwargs)
+            response.asserting = Assertion(self)
+            return response
         except (MissingSchema, InvalidSchema, InvalidURL):
             raise
         except RequestException as e:
@@ -163,7 +165,6 @@ class HttpSession(requests.Session):
             r.status_code = 0  # with this status_code, content returns None
             r.request = Request(method, url).prepare() 
             return r
-
 
 class ResponseContextManager(LocustResponse):
     """
