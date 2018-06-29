@@ -27,7 +27,7 @@ from .exception import (InterruptTaskSet, LocustError, RescheduleTask,
 logger = logging.getLogger(__name__)
 
 
-def task(weight=1):
+def task(weight=1,repetition=1):
     """
     Used as a convenience decorator to be able to declare tasks for a TaskSet 
     inline in the class. Example::
@@ -37,15 +37,15 @@ def task(weight=1):
             def read_thread(self):
                 pass
             
-            @task(7)
+            @task(7,2)
             def create_thread(self):
                 pass
     """
-    
     def decorator_func(func):
         func.locust_task_weight = weight
+        func.locust_task_repetition = repetition
         return func
-    
+
     """
     Check if task was used without parentheses (not called), like this::
     
@@ -56,6 +56,7 @@ def task(weight=1):
     if callable(weight):
         func = weight
         weight = 1
+        repetition = 1
         return decorator_func(func)
     else:
         return decorator_func
@@ -343,12 +344,15 @@ class TaskSet(object):
     
     def execute_next_task(self):
         task = self._task_queue.pop(0)
+        repetition = 1
         if not runners.locust_runner is None and runners.locust_runner.options.integration :
             test_case = TestCase(name=task["callable"].func_name)
             self.test_suite.append_test_case(test_case.id,test_case)
             self.send_test_suite()
             self.locust.client.current_test_case = test_case
-        self.execute_task(task["callable"], *task["args"], **task["kwargs"])
+            repetition = int(runners.locust_runner.options.repetition) if runners.locust_runner.options.repetition and int(runners.locust_runner.options.repetition) > 0 else task["callable"].locust_task_repetition
+        for x in range(0, repetition):
+            self.execute_task(task["callable"], *task["args"], **task["kwargs"])
 
     def send_test_suite(self):
         test_object.set_test_suite(self.test_suite.id,self.test_suite)

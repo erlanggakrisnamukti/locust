@@ -112,7 +112,7 @@ class LocustRunner(object):
         occurence_count = dict([(l.__name__, 0) for l in self.locust_classes])
         
         def hatch():
-            sleep_time = 1.0 / self.hatch_rate
+            sleep_time = 1.0 / self.hatch_rate if not self.options.integration else 0.001
             while True:
                 if not bucket:
                     logger.info("All locusts hatched: %s" % ", ".join(["%s: %d" % (name, count) for name, count in six.iteritems(occurence_count)]))
