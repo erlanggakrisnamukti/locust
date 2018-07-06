@@ -147,7 +147,6 @@ class HttpLocust(Locust):
         
         self.client = HttpSession(base_url=self.host)
 
-
 class TaskSetMeta(type):
     """
     Meta class for the main Locust class. It's used to allow Locust classes to specify task execution 

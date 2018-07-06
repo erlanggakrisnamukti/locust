@@ -1,5 +1,5 @@
 import re
-import time
+import time, datetime
 
 import requests
 import six
@@ -7,13 +7,16 @@ from assertion import Assertion
 from requests import Request, Response
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import (InvalidSchema, InvalidURL, MissingSchema, RequestException)
+import logging
 
 from six.moves.urllib.parse import urlparse, urlunparse
 
 from . import events, runners
+from test_object import TestStep
 from .exception import CatchResponseError, ResponseError
 
 absolute_http_url_regexp = re.compile(r"^https?://", re.I)
+logger = logging.getLogger(__name__)
 
 class LocustResponse(Response):
 
@@ -111,7 +114,20 @@ class HttpSession(requests.Session):
         request_meta["start_time"] = time.time()
         
         response = self._send_request_safe_mode(method, url, **kwargs)
-        
+
+        self.report_test_step = TestStep()
+        self.report_test_step.time_start = request_meta["start_time"]
+        self.report_test_step.response = response
+
+        if response.status_code == 200:
+            self.report_test_step.status = True
+        else:
+            self.report_test_step.status = False
+        self.report_test_step.time_end = time.time()
+        logger.info("report API sent")
+
+        response.expect = Assertion(response)
+
         # record the consumed time
         request_meta["response_time"] = int((time.time() - request_meta["start_time"]) * 1000)
         
@@ -155,7 +171,6 @@ class HttpSession(requests.Session):
         """
         try:
             response = requests.Session.request(self, method, url, **kwargs)
-            response.asserting = Assertion(self)
             return response
         except (MissingSchema, InvalidSchema, InvalidURL):
             raise
@@ -181,7 +196,6 @@ class ResponseContextManager(LocustResponse):
     def __init__(self, response):
         # copy data from response to this object
         self.__dict__ = response.__dict__
-        self.asserting = Assertion(self)
     
     def __enter__(self):
         return self
