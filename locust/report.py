@@ -4,6 +4,24 @@ import random
 import time
 logger = logging.getLogger(__name__)
 
+class Color():
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+class Mark():
+    CHECK_MARK = "u'\u2714'"
+    CROSS_MARK = "u'\u2715'"
+    EXCLAMATION_MARK = "u'\u01c3'"
+
+
 class ReportHandler(object):
 
     def __init__(self):
@@ -199,3 +217,48 @@ class TestStepSummary(object):
 
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
+    def print_stats(self):
+        color = Color()
+        mark = Mark()
+
+        # set up logger for result report
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.INFO)
+
+        # create console handler
+        sh = logging.StreamHandler()
+        sh.setLevel(logging.INFO)
+
+        # formatter that doesn't include anything but the message
+        sh.setFormatter(logging.Formatter('%(message)s'))
+        logger.addHandler(sh)
+
+
+        logger.info("")
+        logger.info(color.UNDERLINE + "REPORT:" +  color.END)
+        for _, test_suite in self.test_suites:
+            name_width = len(test_suite.name)
+            logger.info((color.BOLD + "%" + str(name_width+2) + "s" + color.END) % (test_suite.name))
+            for _, test_case in test_suite.test_cases:
+                
+
+
+        # logger.info((color.YELLOW + "%5s %17s" + color.END + " - %s/%s (%s)") % (u'\u01c3', 'Game Voucher Code', '2', '6', '5.06 secs'))
+        # logger.info("")
+        # logger.info(color.UNDERLINE + "REPORT:" +  color.END)
+        # logger.info((color.BOLD + "%28s" + color.END) % ('Voucher Code With Checkout'))
+        # logger.info((color.YELLOW + "%5s %17s" + color.END + " - %s/%s (%s)") % (u'\u01c3', 'Game Voucher Code', '2', '6', '5.06 secs'))
+        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
+        # logger.info((color.RED + "%5s %18s" + color.END + " - %s/%s (%s)") % (u'\u2715', 'Train Voucher Code', '0', '3', '3.019 secs'))
+        # logger.info("")
+        # logger.info((color.BOLD + "%28s" + color.END) % ('Voucher Code With Checkout'))
+        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
+        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
+        # logger.info("")
+        # logger.info(color.UNDERLINE + "Summary:" + color.END)
+        # logger.info((color.GREEN + "%s %s tests completed" + color.END) % (u'\u2714', "27"))
+        # logger.info((color.RED+ "%s %s tests failed" + color.END) % (u'\u2715', "7"))
+        # logger.info("")
+
+report = ReportHandler()
+report.print_stats()
