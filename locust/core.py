@@ -298,19 +298,26 @@ class TaskSet(object):
                         #number of elements in self.tasks already represents actual repetition
 
                         lastTaskName = ""
+                        lastClassName = ""
                         sameTaskCounter = 1
+                        taskGroup = 0
                         for currenttask in self.tasks:
                             className = self.__class__.__name__
+                            lastClassName = className
                             logger.info("Running Test Case: %s         Task: %s" % (className, currenttask.__name__))
-
                             if lastTaskName == currenttask.__name__ :
                                 sameTaskCounter += 1
+                                taskGroup = taskGroup
                             else:
                                 sameTaskCounter = 1
                                 lastTaskName = currenttask.__name__
+                                taskGroup = taskGroup + 1
+                            
+                            if lastClassName != className:
+                                taskGroup = 0
 
                             #add testcase to test suite
-                            newTestcase = TestCase(name=currenttask.__name__)
+                            newTestcase = TestCase(name=currenttask.__name__, group=taskGroup)
                             newTestcase.repetition_index = sameTaskCounter
                             self.test_suite.set_test_case(newTestcase)
                             report.set_test_suite(self.test_suite)

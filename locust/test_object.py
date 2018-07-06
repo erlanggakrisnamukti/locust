@@ -67,11 +67,12 @@ class TestSuite(object):
 
 class TestCase(object):
     def __init__(self, **kwargs):
-        self._id = 'TC-%s' % time.time()
+        self._id = 'TC-%s-%s' % (kwargs.get("group", None),time.time())
         self._test_suite_id = kwargs.get('test_suite_id', None)
         self._name = self.prepare_name(kwargs.get('name', None))
         self._test_steps = kwargs.get('test_steps', [])
         self._status = kwargs.get('status', None)
+        self._case_status = kwargs.get('case_status', None)
         self._repetition_index = kwargs.get('repetition_index', None)
         self._time_start = kwargs.get('time_start', None)
         self._time_end = kwargs.get('time_end', None)
@@ -83,6 +84,14 @@ class TestCase(object):
     @id.setter
     def id(self, value):
         self._id = value
+
+    @property
+    def case_status(self):
+        return self._case_status
+    
+    @case_status.setter
+    def case_status(self, value):
+        self._case_status = value
 
     @property
     def test_suite_id(self):

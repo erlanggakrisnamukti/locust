@@ -31,4 +31,5 @@ class ReportHandler(object):
         for x in self.acceptable_options:
             self._options[x] = getattr(value, x)
 
+
 report = ReportHandler()
