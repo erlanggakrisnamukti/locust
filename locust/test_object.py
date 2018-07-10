@@ -75,6 +75,7 @@ class TestCase(object):
         self._repetition_index = kwargs.get('repetition_index', None)
         self._time_start = kwargs.get('time_start', None)
         self._time_end = kwargs.get('time_end', None)
+        self._group = kwargs.get('group', None)
 
     @property
     def id(self):
@@ -83,6 +84,14 @@ class TestCase(object):
     @id.setter
     def id(self, value):
         self._id = value
+    
+    @property
+    def group(self):
+        return self._group
+
+    @group.setter
+    def group(self, value):
+        self._group = value
 
     @property
     def test_suite_id(self):
@@ -236,4 +245,4 @@ class TestStep(object):
         self._response = response
 
 class TestStatus:
-    SUCCESS, WARNING, FAILED, SKIP, ERROR = "Success", "Warning", "Failed", "Skip", "Error"
+    SUCCESS, WARNING, FAILED, SKIP, ERROR = 1, 2, 3, 4, 5
