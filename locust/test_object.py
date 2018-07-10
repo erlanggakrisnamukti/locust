@@ -245,4 +245,4 @@ class TestStep(object):
         self._response = response
 
 class TestStatus:
-    SUCCESS, WARNING, FAILED, SKIP, ERROR = 1, 2, 3, 4, 5
+    SUCCESS, WARNING, FAIL = 0, 1, 2

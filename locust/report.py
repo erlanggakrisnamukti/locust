@@ -9,8 +9,8 @@ class ReportHandler(object):
         self.test_suites = dict()
         self._options = dict()
         self.acceptable_options = ["locustfile","repetition"]
-        self.total_pass = None
-        self.total_failure = None
+        self.total_success = None
+        self.total_fail = None
         self.total_warning = None
         self.test_suite_summary = dict()
     
@@ -52,26 +52,48 @@ class ReportHandler(object):
     def compile_report(self):
         test_suite_summary = dict()
         for _,test_suite in self.test_suites.iteritems():
-            test_case_summary_list = dict()
+            test_case_summary_dict = dict()
             for _,test_case in test_suite.test_cases.iteritems():
                 group = test_case.group
-                if not group in test_case_summary_list:
+                if not group in test_case_summary_dict:
                     test_case_summary = TestCaseSummary()
-                    test_case_summary_list[group] = test_case_summary
-                test_case_summary_list[group].test_cases[test_case.repetition_index] = test_case
-                test_case_summary_list[group].repetition = len(test_case_summary_list[group].test_cases)
-            test_suite_summary[test_suite.id] = test_case_summary_list
+                    test_case_summary_dict[group] = test_case_summary
+                test_case_summary_dict[group].test_cases[test_case.repetition_index] = test_case
+            test_suite_summary[test_suite.id] = self.summarize_test_case(test_case_summary_dict)
 
-        for ts_id,test_case_summary_list in test_suite_summary.iteritems():
-            for group, test_case_summary in test_case_summary_list.iteritems():
+        for ts_id,test_case_summary_dict in test_suite_summary.iteritems():
+            for group, test_case_summary in test_case_summary_dict.iteritems():
                 for x in range (0,len(test_case_summary.test_cases[0].test_steps)):
                     test_step_summary = TestStepSummary()
                     for y in range (0, test_case_summary.repetition):
                         test_step_summary.append_test_step(test_case_summary.test_cases[y].test_steps[x])
-                    test_case_summary.append_test_step(test_step_summary)
-                test_case_summary_list[group] = test_case_summary
-            test_suite_summary[ts_id] = test_case_summary_list
+                    test_case_summary.append_test_step(self.summarize_test_step(test_step_summary))
+                test_case_summary_dict[group] = test_case_summary
+            test_suite_summary[ts_id] = test_case_summary_dict
         self.test_suite_summary = test_suite_summary
+    
+    def summarize_test_case(self, test_case_summary_dict):
+        for _, test_case_summary in test_case_summary_dict.iteritems():
+            test_case_summary.repetition = len(test_case_summary.test_cases)
+            test_case_summary.name = test_case_summary.test_cases[0].name
+            for _, test_case in test_case_summary.test_cases.iteritems():
+                test_case_summary.duration += test_case.duration
+                if(test_case.status is TestStatus.SUCCESS):
+                    test_case_summary.total_success += 1
+                elif(test_case.staus is TestStatus.FAIL):
+                    test_case_summary.total_fail += 1 
+            if test_case_summary.total_success > 0 :
+                if test_case_summary.total_fail == test_case_summary.repetition :
+                    test_case_summary.status = TestStatus.FAIL
+                else :
+                    test_case_summary.status = TestStatus.WARNING
+            else :
+                test_case_summary.status = TestStatus.SUCCESS
+        return test_case_summary_dict
+    
+    def summarize_test_step(self, test_step_summary):
+        pass
+
 
 report = ReportHandler()
 
@@ -80,10 +102,11 @@ class TestCaseSummary(object):
         self.test_cases = dict()
         self.repetition = 0
         self.total_fail = 0
-        self.total_pass = 0
+        self.total_success = 0
         self.status = None
         self.total_duration = 0
         self.test_steps = []
+        self.name = None
   
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
@@ -91,11 +114,11 @@ class TestCaseSummary(object):
 class TestStepSummary(object):
     def __init__(self):
         self.test_steps = []
-        self.repetition = 0
         self.total_fail = 0
-        self.total_pass = 0
+        self.total_success = 0
         self.status = None
         self.total_duration = 0
+        self.name = None
 
     
     def append_test_step(self, test_step):
