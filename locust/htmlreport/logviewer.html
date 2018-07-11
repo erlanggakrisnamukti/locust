@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Log Viewer</title>
+<link rel="stylesheet" href="res/bootstrap.css">
+<link rel="stylesheet" href="res/main.css">
+<link href="res/tooltip.css" rel="stylesheet" type="text/css">
+<link href="res/uien.css" type="text/css" rel="stylesheet">
+</head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand"> <i class="glyphicon glyphicon-copyright-mark"></i> Dexter 2018</a>
+          <div class="project-name visible-md visible-lg">Test Execution Log Viewer</div>
+        </div>
+    </div>
+    </div>
+
+<div class="container">
+
+
+<div class="row">
+
+            <div class="panel panel-default ">
+                <div class="panel-heading mypadding">
+                  <h4 class="panel-title">
+                      <center><b>Summary</b></center>
+                  </h4>
+                </div>
+                <div id="logOutput" class="panel mypanel1">
+                  <div class="panel-body">
+                    <div class="row">
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left"><strong> Test Suite: &nbsp;&nbsp;</strong></div> 
+                          <div id="testSuiteName"></div>
+                          
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> Test Case: &nbsp;&nbsp;</strong></div>
+                            <div id="testCaseName"></div>
+                      </div>
+        
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left"><strong> Step: &nbsp;&nbsp;</strong></div>
+                          <div id="testStepName"></div>
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <div class="left"><strong> Order/ Repetition #: &nbsp;&nbsp;</strong></div>
+                        <div id="repetitionNumber"></div>
+                      </div>
+
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> Reason: &nbsp;&nbsp;</strong></div>
+                            <div id="reason"></div>
+                          </div>
+                      </div>
+
+                    </div>
+                </div>
+              </div>
+
+</div><!-- end div row -->
+
+<div class="row">
+        <div class="panel panel-default ">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                        <a data-toggle="collapse" href="logviewer#requestHeader">
+                                <div class="col col-lg-1 mycollapse">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                                <i class="glyphicon glyphicon-chevron-down"></i>
+                                </div>
+                                <div class="col mycollapse2">&nbsp;&nbsp;<b>Request Header</b></div>
+                        </a>
+                  </h4>
+                </div>
+                <div id="requestHeader" class="panel-collapse collapse">
+                  <div class="panel-body">
+                        <center>
+                                <textarea id="taRequestHeader" class="form-control mytextarea" rows="30" ></textarea>
+                        </center>
+                      </div>
+                </div>
+              </div>
+</div>
+
+<div class="row">
+        <div class="panel panel-default ">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                        <a data-toggle="collapse" href="logviewer#requestBody">
+                                <div class="col col-lg-1 mycollapse">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                                <i class="glyphicon glyphicon-chevron-down"></i>
+                                </div>
+                                <div class="col mycollapse2">&nbsp;&nbsp;<b>Request Body</b></div>
+                        </a>
+                  </h4>
+                </div>
+                <div id="requestBody" class="panel-collapse collapse">
+                  <div class="panel-body">
+                        <center>
+                                <textarea id="taRequestBody" class="form-control mytextarea" rows="30" ></textarea>
+                        </center>
+                      </div>
+                </div>
+              </div>
+</div>
+
+<div class="row">
+        <div class="panel panel-default ">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                        <a data-toggle="collapse" href="logviewer#responseHeader">
+                                <div class="col col-lg-1 mycollapse">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                                <i class="glyphicon glyphicon-chevron-down"></i>
+                                </div>
+                                <div class="col mycollapse2">&nbsp;&nbsp;<b>Response Header</b></div>
+                        </a>
+                  </h4>
+                </div>
+                <div id="responseHeader" class="panel-collapse collapse">
+                  <div class="panel-body">
+                        <center>
+                                <textarea id="taResponseHeader" class="form-control mytextarea" rows="30" ></textarea>
+                        </center>
+                      </div>
+                </div>
+              </div>
+</div>
+
+<div class="row">
+        <div class="panel panel-default ">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                        <a data-toggle="collapse" href="logviewer#responseBody">
+                                <div class="col col-lg-1 mycollapse">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                                <i class="glyphicon glyphicon-chevron-down"></i>
+                                </div>
+                                <div class="col mycollapse2">&nbsp;&nbsp;<b>Response Body</b></div>
+                        </a>
+                  </h4>
+                </div>
+                <div id="responseBody" class="panel-collapse collapse">
+                  <div class="panel-body">
+                        <center>
+                                <textarea id="taResponseBody" class="form-control mytextarea" rows="30" ></textarea>
+                        </center>
+                      </div>
+                </div>
+              </div>
+</div>
+
+</div><!-- end div container -->
+
+
+<script src="res/jquery.js"></script>
+<script src="res/bootstrap.js"></script>
+<script src="res/lz-string.min.js"></script>
+<script>
+function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+}
+
+
+$(document).ready(function() {
+            $('.collapse').on('hide.bs.collapse', function(e) {
+                e.stopPropagation();
+                $(this).prev().removeClass('open');
+            }).on('show.bs.collapse', function(e) {
+                e.stopPropagation();
+                $(this).prev().addClass('open');
+            });
+
+});
+
+var pTS = "n/a";
+var pTC = "n/a";
+var pStep = "n/a";
+var pRepetition = "n/a";
+var pRequestHeader = "n/a";
+var pRequestBody = "n/a";
+var pResponseHeader = "n/a";
+var pResponseBody = "n/a";
+var pReason = "n/a";
+
+var _pTS = getURLParameter("ts");
+if(_pTS != null && _pTS != ""){
+    pTS = _pTS;
+}
+var _pTC = getURLParameter("tc");
+if(_pTC != null && _pTC != ""){
+    pTC = _pTC;
+}
+var _pStep = getURLParameter("st");
+if(_pStep != null && _pStep != ""){
+    pStep = _pStep;
+}
+var _pReason = getURLParameter("rs");
+if(_pReason != null && _pReason != ""){
+    pReason = _pReason;
+}
+var _pRepetition = getURLParameter("r");
+if(_pRepetition != null && _pRepetition != ""){
+    pRepetition = _pRepetition;
+}
+var _pRequestHeader = getURLParameter("d1");
+if(_pRequestHeader != null && _pRequestHeader != ""){
+    pRequestHeader = LZString.decompressFromBase64(_pRequestHeader);
+}
+var _pRequestBody = getURLParameter("d2");
+if(_pRequestBody != null && _pRequestBody != ""){
+    pRequestBody = LZString.decompressFromBase64(_pRequestBody);
+}
+var _pResponseHeader = getURLParameter("d3");
+if(_pResponseHeader != null && _pResponseHeader != ""){
+    pResponseHeader = LZString.decompressFromBase64(_pResponseHeader);
+}
+var _pResponseBody = getURLParameter("d4");
+if(_pResponseBody != null && _pResponseBody != ""){
+    pResponseBody = LZString.decompressFromBase64(_pResponseBody);
+}
+
+$('#testSuiteName').html(pTS);
+$('#testCaseName').html(pTC);
+$('#testStepName').html(pStep);
+$('#reason').html(pReason);
+$('#repetitionNumber').html(pRepetition);
+$('#taRequestHeader').val(pRequestHeader);
+$('#taRequestBody').val(pRequestBody);
+$('#taResponseHeader').val(pResponseHeader);
+$('#taResponseBody').val(pResponseBody);
+
+</script>
+  
+</body></html>

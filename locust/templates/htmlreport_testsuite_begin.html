@@ -1,0 +1,22 @@
+<!-- begin of test suite -->
+<div class="col-lg-6 col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="E2EReport#{{ tsid }}">
+            <i class="glyphicon glyphicon-chevron-right"></i>
+            <i class="glyphicon glyphicon-chevron-down"></i>
+            <b>Test Suite:</b>{{ tsname }}
+            <span class="label-container">
+                    <span class="label label-success">{{ number_of_passed }}</span>
+                    <span class="label label-warning">{{ number_of_warning }}</span>
+                    <span class="label label-danger">{{ number_of_failed }}</span>
+                </span>
+          </a>
+        </h4>
+      </div>
+      <div id="{{ tsid }}" class="panel-collapse collapse">
+        <div class="panel-body">
+            Duration: {{ duration }}s
+            <br><br>
+          

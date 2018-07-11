@@ -1,0 +1,17 @@
+<!-- begin of test step -->
+<p class="scenario-container">
+    <span class="label label-warning" title=""><i class="glyphicon glyphicon-warning-sign"></i></span>
+    <span class="text">
+      <a href="E2EReport.html#{{ stepid }}" data-toggle="collapse">{{ stepname }}</a>
+      <span class="step-duration">{{ duration }}s</span>
+    </span>
+
+    <div id="{{ stepid }}" class="collapse mytab1">
+          <span class="label label-success">Passed: {{ number_of_passed }}</span>
+          <span class="label label-danger">Failed: {{ number_of_failed }}</span>
+          <div class="text mytoppadding">
+                {{ logviewerlinks }}
+          </div>
+    </div>
+</p>
+<!-- end of test step -->

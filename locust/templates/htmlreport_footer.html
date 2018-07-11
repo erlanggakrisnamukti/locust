@@ -1,0 +1,44 @@
+</div><!-- end div container -->
+
+
+<script src="res/jquery.js"></script>
+<script src="res/bootstrap.js"></script>
+<script src="res/d3.v3.min.js" charset="utf-8"></script>
+<script src="res/c3.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.collapse').on('hide.bs.collapse', function(e) {
+            e.stopPropagation();
+            $(this).prev().removeClass('open');
+        }).on('show.bs.collapse', function(e) {
+            e.stopPropagation();
+            $(this).prev().addClass('open');
+        });
+    });
+
+    var chart = c3.generate({
+        bindto: '#piechart_scenarios',
+        size: {
+            height: 260
+        },
+        data: {
+            // iris data from R
+            columns: [
+                ['OK', {{ total_ok }}],
+                ['Warning', {{ total_warning }}],
+                ['NOK', {{ total_nok }}],
+            ],
+            colors: {
+                OK: '#5cb85c',
+                Warning: '#f0ad4e',
+                NOK: '#d9534f'
+            },                type : 'pie',
+            onclick: function (d, i) { console.log("onclick", d, i); },
+            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        }
+    });
+
+</script>
+
+</body></html>

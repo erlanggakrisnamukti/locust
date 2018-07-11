@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Dexter's Locust E2E Testing Report</title>
+<link rel="stylesheet" href="res/bootstrap.css">
+<link rel="stylesheet" href="res/main.css">
+<link href="res/tooltip.css" rel="stylesheet" type="text/css">
+<link href="res/uien.css" type="text/css" rel="stylesheet">
+</head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand"> <i class="glyphicon glyphicon-copyright-mark"></i> Dexter 2018</a>
+          <div class="project-name visible-md visible-lg">E2E Test Report</div>
+        </div>
+        <div class="generated-on">Generated on {{ generated_dt }}</div>
+    </div>
+    </div>
+
+<div class="container">
+
+      <div class="row">
+        <div class="chart col-lg-6 col-md-6">
+            <div id="piechart_scenarios"></div>
+        </div>
+        <div class="col-md-6 ">
+            <div class="panel panel-default ">
+                <div class="panel-heading mypadding">
+                  <h4 class="panel-title">
+                      <center><b>SUMMARY</b></center>
+                  </h4>
+                </div>
+                <div id="logOutput" class="panel mypanelminheight">
+                  <div class="panel-body">
+                    <div class="row">
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left">
+                            <strong> Number of Test Suites: </strong>{{ number_of_testsuites }}
+                          </div>
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left">
+                                <strong> Number of Scenarios: </strong>{{ number_of_testcases }}
+                            </div>
+                      </div>
+        
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left">
+                            <strong> Total Duration: </strong>{{ total_duration }}s
+                          </div>
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <div class="left">
+                            <strong> Options Used: </strong>{{ options_used }}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+<div class="row">
+
+
