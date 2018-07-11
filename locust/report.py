@@ -71,28 +71,44 @@ class ReportHandler(object):
                 test_case_summary_dict[group] = test_case_summary
             test_suite_summary[ts_id] = test_case_summary_dict
         self.test_suite_summary = test_suite_summary
+        pass
     
     def summarize_test_case(self, test_case_summary_dict):
         for _, test_case_summary in test_case_summary_dict.iteritems():
             test_case_summary.repetition = len(test_case_summary.test_cases)
             test_case_summary.name = test_case_summary.test_cases[0].name
             for _, test_case in test_case_summary.test_cases.iteritems():
-                test_case_summary.duration += test_case.duration
+                test_case_summary.total_duration += test_case.time_end - test_case.time_start
                 if(test_case.status is TestStatus.SUCCESS):
                     test_case_summary.total_success += 1
-                elif(test_case.staus is TestStatus.FAIL):
+                elif(test_case.status is TestStatus.FAIL):
                     test_case_summary.total_fail += 1 
             if test_case_summary.total_success > 0 :
                 if test_case_summary.total_fail == test_case_summary.repetition :
                     test_case_summary.status = TestStatus.FAIL
                 else :
-                    test_case_summary.status = TestStatus.WARNING
+                    test_case_summary.status = TestStatus.SUCCESS
             else :
-                test_case_summary.status = TestStatus.SUCCESS
+                test_case_summary.status = TestStatus.WARNING
         return test_case_summary_dict
     
     def summarize_test_step(self, test_step_summary):
-        pass
+        # here to calculate the number of total status and duration
+        test_step_summary.name = test_step_summary.test_steps[0].name
+        for test_step in test_step_summary.test_steps:
+            test_step_summary.total_duration = test_step.time_end - test_step.time_start
+            if test_step.status is TestStatus.SUCCESS:
+                test_step_summary.total_success += 1
+            elif test_step.status is TestStatus.FAIL:
+                test_step_summary.total_fail += 1
+        if test_step_summary.total_success > 0 :
+            if test_step_summary.total_fail == len(test_step_summary.test_steps) :
+                test_step_summary.status = TestStatus.FAIL
+            else :
+                test_step_summary.status = TestStatus.SUCCESS
+        else :
+            test_step_summary.status = TestStatus.WARNING
+        return test_step_summary
 
 
 report = ReportHandler()
