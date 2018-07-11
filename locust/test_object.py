@@ -26,6 +26,10 @@ class TestSuite(object):
     @property
     def test_cases(self):
         return self._test_cases
+    
+    @test_cases.setter
+    def test_cases(self, value):
+        self._test_cases = value
 
     def set_test_case(self, test_case):
         try:

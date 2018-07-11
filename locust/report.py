@@ -12,7 +12,8 @@ class ReportHandler(object):
         self.total_success = None
         self.total_fail = None
         self.total_warning = None
-        self.test_suite_summary = dict()
+        self.total_duration = None
+        self.test_suites_summary = dict()
     
     def get_test_suite(self, id):
         try:
@@ -50,8 +51,9 @@ class ReportHandler(object):
             self._options[x] = getattr(value, x)
 
     def compile_report(self):
-        test_suite_summary = dict()
+        test_suites_summary = dict()
         for _,test_suite in self.test_suites.iteritems():
+            test_suite_summary = TestSuiteSummary(test_suite=test_suite)
             test_case_summary_dict = dict()
             for _,test_case in test_suite.test_cases.iteritems():
                 group = test_case.group
@@ -59,19 +61,36 @@ class ReportHandler(object):
                     test_case_summary = TestCaseSummary()
                     test_case_summary_dict[group] = test_case_summary
                 test_case_summary_dict[group].test_cases[test_case.repetition_index] = test_case
-            test_suite_summary[test_suite.id] = self.summarize_test_case(test_case_summary_dict)
+            test_suite_summary.test_cases = self.summarize_test_case(test_case_summary_dict)
+            test_suites_summary[test_suite.id] = test_suite_summary
 
-        for ts_id,test_case_summary_dict in test_suite_summary.iteritems():
-            for group, test_case_summary in test_case_summary_dict.iteritems():
+
+        for ts_id,test_suite_summary in test_suites_summary.iteritems():
+            for group, test_case_summary in test_suite_summary.test_cases.iteritems():
                 for x in range (0,len(test_case_summary.test_cases[0].test_steps)):
                     test_step_summary = TestStepSummary()
                     for y in range (0, test_case_summary.repetition):
                         test_step_summary.append_test_step(test_case_summary.test_cases[y].test_steps[x])
                     test_case_summary.append_test_step(self.summarize_test_step(test_step_summary))
-                test_case_summary_dict[group] = test_case_summary
-            test_suite_summary[ts_id] = test_case_summary_dict
-        self.test_suite_summary = test_suite_summary
-        pass
+                test_suite_summary.test_cases[group] = test_case_summary
+            test_suites_summary[ts_id] = test_suite_summary
+
+        for ts_id, test_suite_summary in test_suites_summary.iteritems():
+            test_suites_summary[ts_id] = self.summarize_test_suite(test_suite_summary)
+        self.test_suites_summary = test_suites_summary
+
+
+    def summarize_test_suite(self, test_suite_summary):
+        for _, test_case in test_suite_summary.test_cases.iteritems():
+            test_suite_summary.total_duration += test_case.total_duration
+            if test_case.status is TestStatus.SUCCESS:
+                test_suite_summary.total_success += 1
+            elif test_case.status is TestStatus.FAIL:
+                test_suite_summary.total_fail += 1
+            elif test_case.status is TestStatus.WARNING:
+                test_suite_summary.total_warning += 1
+        return test_suite_summary
+
     
     def summarize_test_case(self, test_case_summary_dict):
         for _, test_case_summary in test_case_summary_dict.iteritems():
@@ -93,7 +112,6 @@ class ReportHandler(object):
         return test_case_summary_dict
     
     def summarize_test_step(self, test_step_summary):
-        # here to calculate the number of total status and duration
         test_step_summary.name = test_step_summary.test_steps[0].name
         for test_step in test_step_summary.test_steps:
             test_step_summary.total_duration = test_step.time_end - test_step.time_start
@@ -113,6 +131,20 @@ class ReportHandler(object):
 
 report = ReportHandler()
 
+class TestSuiteSummary(TestSuite):
+    def __init__(self, *args, **kwargs):
+        super(TestSuiteSummary, self).__init__(*args, **kwargs)
+        if (kwargs.has_key('test_suite')):
+            test_suite = kwargs.get('test_suite')
+            self._name = test_suite.name
+            self._path = test_suite.path
+            self._id = test_suite.id
+        self._test_cases = list()
+        self.total_duration = 0
+        self.total_fail = 0
+        self.total_warning = 0
+        self.total_success = 0
+
 class TestCaseSummary(object):
     def __init__(self):
         self.test_cases = dict()
@@ -123,6 +155,7 @@ class TestCaseSummary(object):
         self.total_duration = 0
         self.test_steps = []
         self.name = None
+        self.reason = None
   
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
