@@ -1,5 +1,5 @@
 import re
-import time, datetime
+import time
 
 import requests
 import six
@@ -111,20 +111,25 @@ class HttpSession(requests.Session):
         
         # set up pre_request hook for attaching meta data to the request object
         request_meta["method"] = method
+        self.report_test_step = TestStep()
         request_meta["start_time"] = time.time()
+        self.report_test_step.time_start = request_meta["start_time"]
         
         response = self._send_request_safe_mode(method, url, **kwargs)
 
-        self.report_test_step = TestStep()
-        self.report_test_step.time_start = request_meta["start_time"]
+        self.report_test_step.time_end = time.time()
+        if runners.test_case is None:
+            self.report_test_step.id = "on_start"
+        else:
+            self.report_test_step.id = runners.test_case.id
         self.report_test_step.response = response
 
         if response.status_code == 200:
             self.report_test_step.status = True
+            self.report_test_step.reason = ""
         else:
             self.report_test_step.status = False
-        self.report_test_step.time_end = time.time()
-        logger.info("report API sent")
+            self.report_test_step.reason = "not return 200"
 
         response.expect = Assertion(response)
 
@@ -133,6 +138,8 @@ class HttpSession(requests.Session):
         
     
         request_meta["name"] = name or (response.history and response.history[0] or response).request.path_url
+        self.report_test_step.name = request_meta["name"]
+        logger.info("report API sent")
         
         # get the length of the content, but if the argument stream is set to True, we take
         # the size from the content-length header, in order to not trigger fetching of the body
@@ -170,8 +177,7 @@ class HttpSession(requests.Session):
         Safe mode has been removed from requests 1.x.
         """
         try:
-            response = requests.Session.request(self, method, url, **kwargs)
-            return response
+            return requests.Session.request(self, method, url, **kwargs)
         except (MissingSchema, InvalidSchema, InvalidURL):
             raise
         except RequestException as e:

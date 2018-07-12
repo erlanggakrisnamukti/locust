@@ -194,33 +194,32 @@ class TestStep(object):
         self._status = kwargs.get('status', None)
         self._time_start = kwargs.get('time_start', None)
         self._time_end = kwargs.get('time_end', None)
-        self._request = kwargs.get('request', None)
         self._response = kwargs.get('response', None)
         self.reason = kwargs.get('reason', None)
-        if(kwargs.get('dummy', False) is True) :
-            self._time_start = time.time()
-            time.sleep(0.1)
-            self._time_end = time.time()
-            class dummyResponse(object):
-                def __init__(self):
-                    self.content = str(random.randint(1000000,1000000000))
-                    self.headers = {
-                        'content-type':'application/json/response',
-                        'date':'Thu, 16 Jul 2019 04:19:02 GMT'
-                    }
-                    self.status_code = random.randint(100,600)
-                    self.url = 'https:/%s' % (random.randint(0,1000))
-                    class dummyRequest(object):
-                        def __init__(self, url):
-                            self.headers = {
-                                'content-type':'application/json/request',
-                                'date':'Thu, 12 Jul 2018 04:19:02 GMT'
-                            }
-                            self.method = 'GET'
-                            self.body = None
-                            self.url = url
-                    self.request = dummyRequest(self.url)
-            self._response = dummyResponse()
+        # if(kwargs.get('dummy', False) is True) :
+        #     self._time_start = time.time()
+        #     time.sleep(0.1)
+        #     self._time_end = time.time()
+        #     class dummyResponse(object):
+        #         def __init__(self):
+        #             self.content = str(random.randint(1000000,1000000000))
+        #             self.headers = {
+        #                 'content-type':'application/json/response',
+        #                 'date':'Thu, 16 Jul 2019 04:19:02 GMT'
+        #             }
+        #             self.status_code = random.randint(100,600)
+        #             self.url = 'https:/%s' % (random.randint(0,1000))
+        #             class dummyRequest(object):
+        #                 def __init__(self, url):
+        #                     self.headers = {
+        #                         'content-type':'application/json/request',
+        #                         'date':'Thu, 12 Jul 2018 04:19:02 GMT'
+        #                     }
+        #                     self.method = 'GET'
+        #                     self.body = None
+        #                     self.url = url
+        #             self.request = dummyRequest(self.url)
+        #     self._response = dummyResponse()
 
     @property
     def id(self):
@@ -277,6 +276,14 @@ class TestStep(object):
     @response.setter
     def response(self, response):
         self._response = response
+
+    @property
+    def reason(self):
+        return self._reason
+    
+    @reason.setter
+    def reason(self, reason):
+        self._reason = reason
 
 class TestStatus(Enum):
     SUCCESS, WARNING, FAIL = 0, 1, 2

@@ -144,7 +144,6 @@ class HttpLocust(Locust):
         super(HttpLocust, self).__init__(runner=runner)
         if self.host is None:
             raise LocustError("You must specify the base host. Either in the host attribute in the Locust class, or on the command line using the --host option.")
-        
         self.client = HttpSession(base_url=self.host)
 
 class TaskSetMeta(type):
@@ -311,6 +310,7 @@ class TaskSet(object):
                             #add testcase to test suite
                             newTestcase = TestCase(name=currenttask.__name__)
                             newTestcase.repetition_index = sameTaskCounter
+                            runners.test_case = newTestcase
                             self.test_suite.set_test_case(newTestcase)
                             report.set_test_suite(self.test_suite)
 
