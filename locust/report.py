@@ -1,6 +1,7 @@
 import logging
 from test_object import TestSuite, TestCase, TestStep, TestStatus
 import random
+import time
 logger = logging.getLogger(__name__)
 
 class ReportHandler(object):
@@ -9,10 +10,10 @@ class ReportHandler(object):
         self.test_suites = dict()
         self._options = dict()
         self.acceptable_options = ["locustfile","repetition"]
-        self.total_success = None
-        self.total_fail = None
-        self.total_warning = None
-        self.total_duration = None
+        self.total_success = 0
+        self.total_fail = 0
+        self.total_warning = 0
+        self.total_duration = 0
         self.test_suites_summary = dict()
     
     def get_test_suite(self, id):
@@ -27,6 +28,12 @@ class ReportHandler(object):
             self.test_suites[test_suite.id] = test_suite
         except Exception as e:
             logger.error("Can't set test suite : %s",e)
+    
+    def append_test_suite_summary(self, test_suite_summary):
+        try:
+            self.test_suites_summary[test_suite_summary._id] = test_suite_summary
+        except Exception as e:
+            logger.error("Can't append suite summary : %s",e)
 
     def set_dummy_data(self):
         for x in range (0,2):
@@ -39,6 +46,7 @@ class ReportHandler(object):
                         test_step = TestStep(name="TST-%s" % (z), status=TestStatus.SUCCESS)
                         test_case.append_test_step(test_step)
                     test_suite.set_test_case(test_case)
+                    time.sleep(0.2)
             self.set_test_suite(test_suite)
 
     @property
@@ -77,7 +85,16 @@ class ReportHandler(object):
 
         for ts_id, test_suite_summary in test_suites_summary.iteritems():
             test_suites_summary[ts_id] = self.summarize_test_suite(test_suite_summary)
+            self.summarize_all(test_suite_summary)
         self.test_suites_summary = test_suites_summary
+
+
+    def summarize_all(self, test_suite_summary):
+        self.total_duration += test_suite_summary.total_duration
+        self.total_fail += test_suite_summary.total_fail
+        self.total_success += test_suite_summary.total_success
+        self.total_warning += test_suite_summary.total_warning
+        self.append_test_suite_summary(test_suite_summary)
 
 
     def summarize_test_suite(self, test_suite_summary):

@@ -77,8 +77,8 @@ class TestCase(object):
         self._test_steps = kwargs.get('test_steps', [])
         self._status = kwargs.get('status', None)
         self._repetition_index = kwargs.get('repetition_index', None)
-        self._time_start = kwargs.get('time_start', time.time())
-        self._time_end = kwargs.get('time_end', time.time())
+        self._time_start = kwargs.get('time_start', None)
+        self._time_end = kwargs.get('time_end', None)
         self._group = kwargs.get('group', None)
 
     @property
@@ -179,8 +179,8 @@ class TestStep(object):
         self._test_case_id = kwargs.get('test_case_id', None)
         self._name = kwargs.get('name', None)
         self._status = kwargs.get('status', None)
-        self._time_start = kwargs.get('time_start', time.time())
-        self._time_end = kwargs.get('time_end', time.time())
+        self._time_start = kwargs.get('time_start', None)
+        self._time_end = kwargs.get('time_end', None)
         self._request = kwargs.get('request', None)
         self._response = kwargs.get('response', None)
 
