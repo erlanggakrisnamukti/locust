@@ -36,15 +36,26 @@ class ReportHandler(object):
             logger.error("Can't append suite summary : %s",e)
 
     def set_dummy_data(self):
+        self.test_suites = dict()
         for x in range (0,2):
             test_suite = TestSuite(name='TS-%s' % (random.randint(0,100)))
             for y in range (0,3):
                 tc_name = 'TC-%s' % (random.randint(0,100))
                 for m in range (0,2):
                     test_case = TestCase(name=tc_name,status=TestStatus.SUCCESS, group = y, repetition_index=m)
+                    test_case = TestCase(name=tc_name, group = y, repetition_index=m)
+                    status = TestStatus.SUCCESS
                     for z in range (0,5):
                         test_step = TestStep(name="TST-%s" % (z), status=TestStatus.SUCCESS)
+                        message = None
+                        if z > 2 :
+                            if status != TestStatus.FAIL :
+                                status = random.choice((TestStatus.SUCCESS,TestStatus.FAIL))
+                            else :
+                                message = str(random.randint(1000000,1000000000))
+                        test_step = TestStep(name="TST-%s" % (z), status=status, message=message, dummy=True)
                         test_case.append_test_step(test_step)
+                    test_case.auto_set_status()
                     test_suite.set_test_case(test_case)
                     time.sleep(0.2)
             self.set_test_suite(test_suite)
@@ -72,14 +83,19 @@ class ReportHandler(object):
             test_suite_summary.test_cases = self.summarize_test_case(test_case_summary_dict)
             test_suites_summary[test_suite.id] = test_suite_summary
 
-
         for ts_id,test_suite_summary in test_suites_summary.iteritems():
             for group, test_case_summary in test_suite_summary.test_cases.iteritems():
+                failure_reason = None
+                highest_status = TestStatus.SUCCESS
                 for x in range (0,len(test_case_summary.test_cases[0].test_steps)):
                     test_step_summary = TestStepSummary()
                     for y in range (0, test_case_summary.repetition):
                         test_step_summary.append_test_step(test_case_summary.test_cases[y].test_steps[x])
                     test_case_summary.append_test_step(self.summarize_test_step(test_step_summary))
+                    if test_step_summary.status.value > highest_status.value :
+                        highest_status = test_step_summary.status
+                        failure_reason = "%s on step %s [%s]" % (highest_status.name,x,test_step_summary.name)
+                test_case_summary.reason = failure_reason
                 test_suite_summary.test_cases[group] = test_case_summary
             test_suites_summary[ts_id] = test_suite_summary
 
@@ -88,14 +104,12 @@ class ReportHandler(object):
             self.summarize_all(test_suite_summary)
         self.test_suites_summary = test_suites_summary
 
-
     def summarize_all(self, test_suite_summary):
         self.total_duration += test_suite_summary.total_duration
         self.total_fail += test_suite_summary.total_fail
         self.total_success += test_suite_summary.total_success
         self.total_warning += test_suite_summary.total_warning
         self.append_test_suite_summary(test_suite_summary)
-
 
     def summarize_test_suite(self, test_suite_summary):
         for _, test_case in test_suite_summary.test_cases.iteritems():
@@ -108,7 +122,6 @@ class ReportHandler(object):
                 test_suite_summary.total_warning += 1
         return test_suite_summary
 
-    
     def summarize_test_case(self, test_case_summary_dict):
         for _, test_case_summary in test_case_summary_dict.iteritems():
             test_case_summary.repetition = len(test_case_summary.test_cases)
@@ -144,8 +157,6 @@ class ReportHandler(object):
         else :
             test_step_summary.status = TestStatus.WARNING
         return test_step_summary
-
-
 report = ReportHandler()
 
 class TestSuiteSummary(TestSuite):
@@ -173,7 +184,7 @@ class TestCaseSummary(object):
         self.test_steps = []
         self.name = None
         self.reason = None
-  
+
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
 
@@ -186,9 +197,5 @@ class TestStepSummary(object):
         self.total_duration = 0
         self.name = None
 
-    
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
-    
-report.set_dummy_data()
-report.compile_report()
