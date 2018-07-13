@@ -90,7 +90,7 @@ class TestCase(object):
             test_step = self._test_steps[x]
             if test_step.status.value > new_status.value :
                 new_status = test_step.status
-                self._message = "Failed on step %s [%s]" % ((x+1),test_step.name)
+                self.reason = "%s on step %s [%s]" % (new_status.name,(x+1),test_step.name)
         self._time_start = self.test_steps[0]._time_start
         self._time_end = self.test_steps[len(self.test_steps)-1]._time_end
         self._status = new_status
