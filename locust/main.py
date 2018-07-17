@@ -446,6 +446,7 @@ def main():
                 gevent.sleep(1)
             report.set_dummy_data()
             report.compile_report()
+            report.print_stats()
             code = 0
         else:
             #normal locust execution mode

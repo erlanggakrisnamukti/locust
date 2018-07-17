@@ -1,7 +1,7 @@
-import logging
 from test_object import TestSuite, TestCase, TestStep, TestStatus
-import random
-import time
+from .log import console_logger
+import random, time, logging
+
 logger = logging.getLogger(__name__)
 
 class Color():
@@ -12,15 +12,15 @@ class Color():
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     RED = '\033[91m'
+    GREY = '\033[38;5;246m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     END = '\033[0m'
 
 class Mark():
-    CHECK_MARK = "u'\u2714'"
-    CROSS_MARK = "u'\u2715'"
-    EXCLAMATION_MARK = "u'\u01c3'"
-
+    CHECK_MARK = u'\u2714'
+    CROSS_MARK = u'\u2715'
+    EXCLAMATION_MARK = u'\u01c3'
 
 class ReportHandler(object):
 
@@ -77,6 +77,48 @@ class ReportHandler(object):
                     test_suite.set_test_case(test_case)
                     time.sleep(0.2)
             self.set_test_suite(test_suite)
+    
+    def print_stats(self):
+        color = Color()
+        mark = Mark()
+
+        console_logger.info("")
+        console_logger.info(color.UNDERLINE + "REPORT:" +  color.END)
+        console_logger.info("")
+        for test_suite_id, test_suite_summary in self.test_suites_summary.iteritems():
+            name_width = len(test_suite_summary.name)
+            console_logger.info((color.BOLD + "%" + str(name_width+2) + "s" + color.END) % (test_suite_summary.name))
+            for ts_id, test_case_summary in test_suite_summary.test_cases.iteritems():
+                name_width = len(test_case_summary.name)
+                text_color = None
+                icon_status = None
+
+                if test_case_summary.total_success == test_case_summary.repetition :
+                    text_color = color.GREEN
+                    icon_status = mark.CHECK_MARK
+                elif test_case_summary.total_success == 0 :
+                    text_color = color.RED
+                    icon_status = mark.CROSS_MARK
+                else :
+                    text_color = color.YELLOW
+                    icon_status = mark.EXCLAMATION_MARK
+
+                console_logger.info((text_color + "%5s" + "%" + str(name_width+1) + "s" + " - %s/%s (%s secs)" + color.END ) % (icon_status, test_case_summary.name, test_case_summary.total_success, test_case_summary.repetition, round(test_case_summary.total_duration, 3)))
+                if test_case_summary.reason:
+                    name_width = len(test_case_summary.reason)
+                    console_logger.info((color.GREY + "%" + str(name_width+8) + "s" + color.END) % (test_case_summary.reason))
+
+            console_logger.info("")
+
+        console_logger.info("")
+        console_logger.info((color.GREEN + "Finished in %s secs" + color.END) % (round(report.total_duration, 3)))
+
+        console_logger.info("")
+        console_logger.info(color.UNDERLINE + "Summary:" + color.END)
+        console_logger.info((color.GREEN + "%s %s tests completed" + color.END) % (mark.CHECK_MARK, report.total_success))
+        console_logger.info((color.YELLOW + "%s %s tests warning" + color.END) % (mark.EXCLAMATION_MARK, report.total_warning))
+        console_logger.info((color.RED + "%s %s tests failed" + color.END) % (mark.CROSS_MARK, report.total_fail))
+        console_logger.info("")
 
     @property
     def options(self):
@@ -88,6 +130,13 @@ class ReportHandler(object):
             self._options[x] = getattr(value, x)
 
     def compile_report(self):
+        """Copy test suite, test case, and test step instance into summary instance 
+        so it will be easier to access the datas needed for reports.
+
+        Returns:
+            dict -- test suites' summary
+        """
+
         test_suites_summary = dict()
         for _,test_suite in self.test_suites.iteritems():
             test_suite_summary = TestSuiteSummary(test_suite=test_suite)
@@ -123,6 +172,12 @@ class ReportHandler(object):
         self.test_suites_summary = test_suites_summary
 
     def summarize_all(self, test_suite_summary):
+        """Sum up total duration, fail, success, and warning of the test.
+        
+        Arguments:
+            test_suite_summary {dict} -- test suite's summary
+        """
+
         self.total_duration += test_suite_summary.total_duration
         self.total_fail += test_suite_summary.total_fail
         self.total_success += test_suite_summary.total_success
@@ -130,6 +185,16 @@ class ReportHandler(object):
         self.append_test_suite_summary(test_suite_summary)
 
     def summarize_test_suite(self, test_suite_summary):
+        """Sum up total success, fail, and warning of test case 
+        and put it inside test suite summary attribute.
+        
+        Arguments:
+            test_suite_summary {dict} -- test suite's summary
+        
+        Returns:
+            dict -- test suite's summary
+        """
+
         for _, test_case in test_suite_summary.test_cases.iteritems():
             test_suite_summary.total_duration += test_case.total_duration
             if test_case.status is TestStatus.SUCCESS:
@@ -141,6 +206,16 @@ class ReportHandler(object):
         return test_suite_summary
 
     def summarize_test_case(self, test_case_summary_dict):
+        """Determine test case's status, whether it is a success, fail or warning.
+        Also sum up total fail and success of test cases.
+        
+        Arguments:
+            test_case_summary_dict {dict} -- test case's summary
+        
+        Returns:
+            dict -- test case's summary
+        """
+
         for _, test_case_summary in test_case_summary_dict.iteritems():
             test_case_summary.repetition = len(test_case_summary.test_cases)
             test_case_summary.name = test_case_summary.test_cases[0].name
@@ -151,15 +226,27 @@ class ReportHandler(object):
                 elif(test_case.status is TestStatus.FAIL):
                     test_case_summary.total_fail += 1 
             if test_case_summary.total_success > 0 :
-                if test_case_summary.total_fail == test_case_summary.repetition :
-                    test_case_summary.status = TestStatus.FAIL
-                else :
+                if test_case_summary.total_success == test_case_summary.repetition :
                     test_case_summary.status = TestStatus.SUCCESS
+                else :
+                    test_case_summary.status = TestStatus.WARNING
             else :
-                test_case_summary.status = TestStatus.WARNING
+                test_case_summary.status = TestStatus.FAIL
         return test_case_summary_dict
     
     def summarize_test_step(self, test_step_summary):
+        """Determine a test step's status, whether it is a success, fail or warning.
+        Since a test step can be repeated more than one time, it is needed to set
+        a result conclusion from the repeated step. Usefull for test step's summary in reports.
+        Also sum up total fail and success of test steps.
+        
+        Arguments:
+            test_step_summary {dict} -- test step's summary
+        
+        Returns:
+            dict -- test step's summary
+        """
+
         test_step_summary.name = test_step_summary.test_steps[0].name
         for test_step in test_step_summary.test_steps:
             test_step_summary.total_duration = test_step.time_end - test_step.time_start
@@ -168,14 +255,13 @@ class ReportHandler(object):
             elif test_step.status is TestStatus.FAIL:
                 test_step_summary.total_fail += 1
         if test_step_summary.total_success > 0 :
-            if test_step_summary.total_fail == len(test_step_summary.test_steps) :
-                test_step_summary.status = TestStatus.FAIL
-            else :
+            if test_step_summary.total_success == len(test_step_summary.test_steps) :
                 test_step_summary.status = TestStatus.SUCCESS
+            else :
+                test_step_summary.status = TestStatus.WARNING
         else :
-            test_step_summary.status = TestStatus.WARNING
+            test_step_summary.status = TestStatus.FAIL
         return test_step_summary
-report = ReportHandler()
 
 class TestSuiteSummary(TestSuite):
     def __init__(self, *args, **kwargs):
@@ -217,48 +303,5 @@ class TestStepSummary(object):
 
     def append_test_step(self, test_step):
         self.test_steps.append(test_step)
-    def print_stats(self):
-        color = Color()
-        mark = Mark()
-
-        # set up logger for result report
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.INFO)
-
-        # create console handler
-        sh = logging.StreamHandler()
-        sh.setLevel(logging.INFO)
-
-        # formatter that doesn't include anything but the message
-        sh.setFormatter(logging.Formatter('%(message)s'))
-        logger.addHandler(sh)
-
-
-        logger.info("")
-        logger.info(color.UNDERLINE + "REPORT:" +  color.END)
-        for _, test_suite in self.test_suites:
-            name_width = len(test_suite.name)
-            logger.info((color.BOLD + "%" + str(name_width+2) + "s" + color.END) % (test_suite.name))
-            for _, test_case in test_suite.test_cases:
-                
-
-
-        # logger.info((color.YELLOW + "%5s %17s" + color.END + " - %s/%s (%s)") % (u'\u01c3', 'Game Voucher Code', '2', '6', '5.06 secs'))
-        # logger.info("")
-        # logger.info(color.UNDERLINE + "REPORT:" +  color.END)
-        # logger.info((color.BOLD + "%28s" + color.END) % ('Voucher Code With Checkout'))
-        # logger.info((color.YELLOW + "%5s %17s" + color.END + " - %s/%s (%s)") % (u'\u01c3', 'Game Voucher Code', '2', '6', '5.06 secs'))
-        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
-        # logger.info((color.RED + "%5s %18s" + color.END + " - %s/%s (%s)") % (u'\u2715', 'Train Voucher Code', '0', '3', '3.019 secs'))
-        # logger.info("")
-        # logger.info((color.BOLD + "%28s" + color.END) % ('Voucher Code With Checkout'))
-        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
-        # logger.info((color.GREEN + "%5s %16s" + color.END + " - %s/%s (%s)") % (u'\u2714', 'PLN Voucher Code', '6', '6', '7.56 secs'))
-        # logger.info("")
-        # logger.info(color.UNDERLINE + "Summary:" + color.END)
-        # logger.info((color.GREEN + "%s %s tests completed" + color.END) % (u'\u2714', "27"))
-        # logger.info((color.RED+ "%s %s tests failed" + color.END) % (u'\u2715', "7"))
-        # logger.info("")
 
 report = ReportHandler()
-report.print_stats()
