@@ -313,9 +313,9 @@ th {
             <i class="glyphicon glyphicon-chevron-down"></i>
             <b>Test Suite:</b>{{ test_suites_summary[testsuite]._name }}
             <span class="label-container">
-                    <span class="label label-success">{{ test_suites_summary[testsuite].total_success }}</span>
-                    <span class="label label-warning">{{ test_suites_summary[testsuite].total_warning }}</span>
-                    <span class="label label-danger">{{ test_suites_summary[testsuite].total_fail }}</span>
+                    <span class="label label-success" title="OK">{{ test_suites_summary[testsuite].total_success }}</span>
+                    <span class="label label-warning" title="Warning">{{ test_suites_summary[testsuite].total_warning }}</span>
+                    <span class="label label-danger" title="Failed">{{ test_suites_summary[testsuite].total_fail }}</span>
             </span>
           </a>
         </h4>
@@ -343,7 +343,7 @@ th {
                         {% elif test_suites_summary[testsuite].test_cases[testcase].status.value == 1 %}    
                             <span class="label label-warning">Warning</span>
                         {% else %}    
-                            <span class="label label-danger">NOK</span>
+                            <span class="label label-danger">Failed</span>
                         {% endif %}
                     </span>
                     <div class="text mytoppadding">
@@ -626,12 +626,12 @@ th {
                 columns: [
                     ['OK', {{ total_success }}],
                     ['Warning', {{ total_warning }}],
-                    ['NOK', {{ total_fail }}],
+                    ['Failed', {{ total_fail }}],
                 ],
                 colors: {
                     OK: '#5cb85c',
                     Warning: '#f0ad4e',
-                    NOK: '#d9534f'
+                    Failed: '#d9534f'
                 },                type : 'pie',
                 onclick: function (d, i) { console.log("onclick", d, i); },
                 onmouseover: function (d, i) { console.log("onmouseover", d, i); },
