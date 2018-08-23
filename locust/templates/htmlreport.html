@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Dexter's Locust E2E Testing Report</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.3/c3.min.css">
+<style type="text/css">
+.panel-heading {
+    padding: 0;
+}
+
+@media (min-width: 768px) {
+    .pull-right-lg {
+        float: left;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .pull-right-lg {
+        float: right;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .pull-right-lg {
+        float: right;
+    }
+}
+
+@media (min-width: 1200px) {
+    .pull-right-lg {
+        float: right;
+    }
+}
+
+.left {
+    float: left;
+}
+
+.metadata {
+    overflow: auto;
+    letter-spacing: 0.2px;
+    border-color: white;
+    line-height: 1.6;
+    color: #4d4d4d;
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    padding-bottom:3px;
+}
+
+.panel-heading a {
+    padding: 10px 15px;
+    display: block;
+    position: relative;
+    text-decoration: none;
+}
+
+.panel-heading i.glyphicon-chevron-down {
+    display: none;
+}
+
+.panel-heading i.glyphicon-chevron-right {
+    display: inline-block;
+}
+
+.panel-heading.open i.glyphicon-chevron-down {
+    display: inline-block;
+}
+
+.panel-heading.open i.glyphicon-chevron-right {
+    display: none;
+}
+
+.generated-on {
+    text-align: right;
+    padding-top: 15px;
+}
+
+.panel-title b {
+    padding-right: 10px;
+}
+
+.panel-heading .label-container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.panel-heading .label-container label {
+    margin-left: 5px;
+    padding: 5px;
+}
+
+.navbar .label-container {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+}
+
+.navbar {
+    margin-bottom: 10px;
+}
+
+.navbar .label {
+    font-size: 20px;
+}
+
+.navbar .project-name {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin-left: -100px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.tags {
+    margin-left: 18px;
+    margin-right: 20px;
+    padding-top: 5px;
+    margin-bottom: -4px;
+}
+
+.tag {
+    font-size: 13px;
+    color: #696969;
+    letter-spacing: 0.3px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+}
+
+.chart {
+    padding-bottom: 15px;
+}
+
+div.chart div div svg rect {
+    fill: #f5f5f5;
+}
+
+table.arguments {
+    margin-left: 30px;
+}
+
+.scenarioTitle {
+    width: 80%
+}
+
+.description {
+    background-color: rgb(243, 236, 236);
+    border-color: white;
+    line-height: 1.6;
+    color: #6f6f6f;
+    font-weight: 400;
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    padding:  0.1em 0.5em 1.2em 1.5em
+}
+
+#scenario-description {
+    padding-bottom:  1em;
+    padding-left: 0.2em;
+}
+
+.scrollBar {
+    overflow-x: scroll;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: #f5f5f5;
+    color: black;
+}
+
+.info {
+    background-color: #fbfbfb;
+}
+
+.step-duration {
+    float: right;
+}
+
+.footer-div {
+    text-align: right;
+    vertical-align: middle;
+    height:3.5%;
+    width:100%;
+}
+
+.mytab1 {
+    padding-left: 2em;
+}
+.mytoppadding {
+    margin-top: 10px;
+}
+
+.mypadding {
+    padding: 10px;
+}
+
+.mybackground1 {
+    background-color: rgb(243, 236, 236);
+}
+
+.mypanelminheight {
+    min-height: 180px;
+}
+
+.mytextarea {
+    background-color: rgb(243, 236, 236);
+    width: 95%;
+}
+
+.mycollapse {
+    max-width: 30px;
+}
+.mycollapse2 {
+    padding-right: 30px;
+}
+
+.mypanel1 {
+    margin-bottom: 0px;
+}
+</style>
+</head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand"> <i class="glyphicon glyphicon-copyright-mark"></i> Dexter 2018</a>
+          <div class="project-name visible-md visible-lg">E2E Test Report</div>
+        </div>
+        <div class="generated-on">Generated on {{ generated_on }}</div>
+    </div>
+    </div>
+
+<div class="container">
+
+
+      <div class="row">
+        <div class="chart col-lg-6 col-md-6">
+            <div id="piechart_scenarios"></div>
+        </div>
+        <div class="col-md-6 ">
+            <div class="panel panel-default ">
+                <div class="panel-heading mypadding">
+                  <h4 class="panel-title">
+                      <center><b>SUMMARY</b></center>
+                  </h4>
+                </div>
+                <div id="logOutput" class="panel mypanelminheight">
+                  <div class="panel-body">
+                    <div class="row">
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left">
+                            <strong> Number of Test Suites: </strong>{{ number_testsuites }}
+                          </div>
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left">
+                                <strong> Number of Scenarios: </strong>{{ number_testcases }}
+                            </div>
+                      </div>
+        
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left">
+                            <strong> Total Duration: </strong>{{ '%0.2f' % total_duration|float }}s
+                          </div>
+                      </div>
+                      
+                      <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        <div class="left">
+                            <strong> Options Used:</strong> {{ option_used }}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+<div class="row">
+
+  {% set ctestsuite = namespace(counter=0) %}
+  {% for testsuite in test_suites_summary %}
+  <!-- begin of test suite -->
+  <div class="col-lg-6 col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+            {% set ctestsuite.counter = ctestsuite.counter + 1 %}
+            <a data-toggle="collapse" href="#TS{{ ctestsuite.counter }}">
+            <i class="glyphicon glyphicon-chevron-right"></i>
+            <i class="glyphicon glyphicon-chevron-down"></i>
+            <b>Test Suite:</b>{{ test_suites_summary[testsuite]._name }}
+            <span class="label-container">
+                    <span class="label label-success">{{ test_suites_summary[testsuite].total_success }}</span>
+                    <span class="label label-warning">{{ test_suites_summary[testsuite].total_warning }}</span>
+                    <span class="label label-danger">{{ test_suites_summary[testsuite].total_fail }}</span>
+            </span>
+          </a>
+        </h4>
+      </div>
+      <div id="TS{{ ctestsuite.counter }}" class="panel-collapse collapse">
+        <div class="panel-body">
+            Duration: {{ '%0.2f' % test_suites_summary[testsuite].total_duration|float }}s
+            <br><br>
+          
+
+            {% set ctestcase = namespace(counter=0) %}
+            {% for testcase in test_suites_summary[testsuite].test_cases %}
+            <!-- begin of test case -->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                    {% set ctestcase.counter = ctestcase.counter + 1 %}
+                    <a data-toggle="collapse" href="#TS{{ ctestsuite.counter }}TC{{ ctestcase.counter }}">
+                    <i class="glyphicon glyphicon-chevron-right"></i>
+                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <b>Scenario:</b>{{ test_suites_summary[testsuite].test_cases[testcase].name }}
+                    <span class="label-container">
+                        {% if test_suites_summary[testsuite].test_cases[testcase].status.value == 0 %}    
+                            <span class="label label-success">OK</span>
+                        {% elif test_suites_summary[testsuite].test_cases[testcase].status.value == 1 %}    
+                            <span class="label label-warning">Warning</span>
+                        {% else %}    
+                            <span class="label label-danger">NOK</span>
+                        {% endif %}
+                    </span>
+                    <div class="text mytoppadding">
+                        {% if test_suites_summary[testsuite].test_cases[testcase].reason is not none %}    
+                            <span class="label label-default">{{ test_suites_summary[testsuite].test_cases[testcase].reason }}</span>
+                        {% endif %}
+                    </div>
+                  </a>
+                </h4>
+              </div>
+              <div id="TS{{ ctestsuite.counter }}TC{{ ctestcase.counter }}" class="panel-collapse collapse">
+                <div class="panel-body">
+                  
+                    
+                  Repetition: {{ test_suites_summary[testsuite].test_cases[testcase].repetition }} &nbsp;&nbsp;&nbsp;
+                  Duration: {{ '%0.2f' % test_suites_summary[testsuite].test_cases[testcase].total_duration|float }}s &nbsp;&nbsp;&nbsp; <br>
+                  <span class="label label-success">Passed: {{ test_suites_summary[testsuite].test_cases[testcase].total_success }}</span>
+                  <span class="label label-danger">Failed: {{ test_suites_summary[testsuite].test_cases[testcase].total_fail }}</span>
+                  <br><br>
+
+                  {% set cteststep = namespace(counter=0) %}
+                  {% for teststep in test_suites_summary[testsuite].test_cases[testcase].test_steps %}
+                  <!-- begin of test step -->
+                  <p class="scenario-container">
+                    {% if teststep.status.value == 0 %}
+                      <span class="label label-success" title=""><i class="glyphicon glyphicon-ok"></i></span>
+                    {% elif teststep.status.value == 1 %}
+                      <span class="label label-warning" title=""><i class="glyphicon glyphicon-warning-sign"></i></span>
+                    {% else %}
+                      <span class="label label-danger" title=""><i class="glyphicon glyphicon-remove-sign"></i></span>
+                    {% endif %}
+                      <span class="text">
+                        {% set cteststep.counter = cteststep.counter + 1 %}
+                        <a href="#TS{{ ctestsuite.counter }}TC{{ ctestcase.counter }}TS{{ cteststep.counter }}" 
+                            data-toggle="collapse">{{ teststep.name }}</a>
+                        <span class="step-duration">{{ '%0.2f' % teststep.total_duration|float }}s</span>
+                      </span>
+
+                      <div id="TS{{ ctestsuite.counter }}TC{{ ctestcase.counter }}TS{{ cteststep.counter }}" class="collapse mytab1">
+                            <span class="label label-success">Passed: {{ teststep.total_success }}</span>
+                            <span class="label label-danger">Failed: {{ teststep.total_fail }}</span>
+                            <div class="text mytoppadding">
+
+                                    {% set crepetition = namespace(counter=0) %}
+                                    {% for repetition in teststep.test_steps %}
+                                    <!-- begin of repetition -->
+                                    <a href="" 
+                                      data-ts="{{ test_suites_summary[testsuite]._name }}" 
+                                      data-tc="{{ test_suites_summary[testsuite].test_cases[testcase].name }}"
+                                      data-st="{{ teststep.name }}"
+                                      {% set crepetition.counter = crepetition.counter + 1 %}
+                                      data-r="{{ crepetition.counter }}"
+                                      data-rs="{{ repetition.reason }}"
+                                      data-d1="{{ repetition.response.request.headers }}"
+                                      data-d2="{{ repetition.response.request.body }}"
+                                      data-d3="{{ repetition.response.headers }}"
+                                      data-d4="{{ repetition.response.content }}"
+                                      data-url="{{ repetition.response.request.url }}"
+                                      data-mt="{{ repetition.response.request.method }}"
+                                      class="js-log">Execution Log #{{ crepetition.counter }}</a>
+                                      {% if repetition.status.value != 0 %}
+                                        &nbsp;<span class="label label-danger" title=""><i class="glyphicon glyphicon-remove-sign"></i></span>
+                                      {% endif %}
+                                      <br>
+                                    <!-- end of repetition-->
+                                    {% endfor %}
+                            </div>
+                      </div>
+                   </p>
+                   <!-- end of test step -->
+                   {% endfor %}
+                    
+                </div>
+              </div>
+            </div><!-- end of test case -->
+            {% endfor %}
+          
+          </div>
+        </div>
+      </div>
+  </div> <!-- end div test suite -->
+  {% endfor %}
+
+  </div><!-- end div row -->
+  
+</div><!-- end div container -->
+
+
+<!-- hidden modal -->
+<div class="container modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modal1label" aria-hidden="true">
+  <div role="document">
+    <div class="modal-content">
+
+      <div class="modal-body">
+        <div class="row">
+  
+              <div class="panel panel-default ">
+                  <div class="panel-heading mypadding">
+                    <h4 class="panel-title">
+                        <center><b>Log Viewer</b>                        
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <i class="glyphicon glyphicon-remove-circle"></i>
+                          </button>
+                        </center>
+                
+                    </h4>
+                  </div>
+                  <div id="logOutput" class="panel mypanel1">
+                    <div class="panel-body">
+                      <div class="row">
+                        
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> Test Suite: &nbsp;&nbsp;</strong></div> 
+                            <div id="testSuiteName"></div>
+                            
+                        </div>
+                        
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                              <div class="left"><strong> Test Case: &nbsp;&nbsp;</strong></div>
+                              <div id="testCaseName"></div>
+                        </div>
+          
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> Step: &nbsp;&nbsp;</strong></div>
+                            <div id="testStepName"></div>
+                        </div>
+                        
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                          <div class="left"><strong> Order/ Repetition #: &nbsp;&nbsp;</strong></div>
+                          <div id="repetitionNumber"></div>
+                        </div>
+  
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                              <div class="left"><strong> Reason: &nbsp;&nbsp;</strong></div>
+                              <div id="reason"></div>
+                        </div>
+  
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> URL: &nbsp;&nbsp;</strong></div>
+                            <div id="url"></div>
+                        </div>
+
+                        <div class="clearfix metadata col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="left"><strong> Method: &nbsp;&nbsp;</strong></div>
+                            <div id="method"></div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+        </div>  
+  </div><!-- end div row -->
+  
+  <div class="row">
+          <div class="panel panel-default ">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                          <a data-toggle="collapse" href="logviewer#requestHeader">
+                                  <div class="col col-lg-1 mycollapse">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>
+                                  <i class="glyphicon glyphicon-chevron-down"></i>
+                                  </div>
+                                  <div class="col mycollapse2">&nbsp;&nbsp;<b>Request Header</b></div>
+                          </a>
+                    </h4>
+                  </div>
+                  <div id="requestHeader" class="panel-collapse collapse">
+                    <div class="panel-body">
+                          <center>
+                                  <textarea id="taRequestHeader" class="form-control mytextarea" rows="30" ></textarea>
+                          </center>
+                        </div>
+                  </div>
+                </div>
+  </div>
+  
+  <div class="row">
+          <div class="panel panel-default ">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                          <a data-toggle="collapse" href="logviewer#requestBody">
+                                  <div class="col col-lg-1 mycollapse">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>
+                                  <i class="glyphicon glyphicon-chevron-down"></i>
+                                  </div>
+                                  <div class="col mycollapse2">&nbsp;&nbsp;<b>Request Body</b></div>
+                          </a>
+                    </h4>
+                  </div>
+                  <div id="requestBody" class="panel-collapse collapse">
+                    <div class="panel-body">
+                          <center>
+                                  <textarea id="taRequestBody" class="form-control mytextarea" rows="30" ></textarea>
+                          </center>
+                        </div>
+                  </div>
+                </div>
+  </div>
+  
+  <div class="row">
+          <div class="panel panel-default ">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                          <a data-toggle="collapse" href="logviewer#responseHeader">
+                                  <div class="col col-lg-1 mycollapse">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>
+                                  <i class="glyphicon glyphicon-chevron-down"></i>
+                                  </div>
+                                  <div class="col mycollapse2">&nbsp;&nbsp;<b>Response Header</b></div>
+                          </a>
+                    </h4>
+                  </div>
+                  <div id="responseHeader" class="panel-collapse collapse">
+                    <div class="panel-body">
+                          <center>
+                                  <textarea id="taResponseHeader" class="form-control mytextarea" rows="30" ></textarea>
+                          </center>
+                        </div>
+                  </div>
+                </div>
+  </div>
+  
+  <div class="row">
+          <div class="panel panel-default ">
+                  <div class="panel-heading">
+                    <h4 class="panel-title">
+                          <a data-toggle="collapse" href="logviewer#responseBody">
+                                  <div class="col col-lg-1 mycollapse">
+                                  <i class="glyphicon glyphicon-chevron-right"></i>
+                                  <i class="glyphicon glyphicon-chevron-down"></i>
+                                  </div>
+                                  <div class="col mycollapse2">&nbsp;&nbsp;<b>Response Body</b></div>
+                          </a>
+                    </h4>
+                  </div>
+                  <div id="responseBody" class="panel-collapse collapse">
+                    <div class="panel-body">
+                          <center>
+                                  <textarea id="taResponseBody" class="form-control mytextarea" rows="30" ></textarea>
+                          </center>
+                        </div>
+                  </div>
+                </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</div><!-- end div container for modal-->
+  
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.3/c3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+<script>
+        $(document).ready(function() {
+            $('.collapse').on('hide.bs.collapse', function(e) {
+                e.stopPropagation();
+                $(this).prev().removeClass('open');
+            }).on('show.bs.collapse', function(e) {
+                e.stopPropagation();
+                $(this).prev().addClass('open');
+            });
+
+            $('.js-log').on('click', function(e) {
+              e.preventDefault();
+              el = $(this);
+              updateModal(el);
+            })
+        });
+
+        var chart = c3.generate({
+            bindto: '#piechart_scenarios',
+            size: {
+                height: 260
+            },
+            data: {
+                columns: [
+                    ['OK', {{ total_success }}],
+                    ['Warning', {{ total_warning }}],
+                    ['NOK', {{ total_fail }}],
+                ],
+                colors: {
+                    OK: '#5cb85c',
+                    Warning: '#f0ad4e',
+                    NOK: '#d9534f'
+                },                type : 'pie',
+                onclick: function (d, i) { console.log("onclick", d, i); },
+                onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+                onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+            }
+        });
+
+function updateModal(el){
+
+  $('#testSuiteName').html(el.data("ts"));
+  $('#testCaseName').html(el.data("tc"));
+  $('#testStepName').html(el.data("st"));
+  $('#reason').html(el.data("rs"));
+  $('#url').html(el.data("url"));
+  $('#method').html(el.data("mt"));
+  $('#repetitionNumber').html(el.data("r"));
+//   $('#taRequestHeader').val(LZString.decompressFromBase64(el.data("d1")));
+//   $('#taRequestBody').val(LZString.decompressFromBase64(el.data("d2")));
+//   $('#taResponseHeader').val(LZString.decompressFromBase64(el.data("d3")));
+//   $('#taResponseBody').val(LZString.decompressFromBase64(el.data("d4")));
+  $('#taRequestHeader').val(el.data("d1"));
+  $('#taRequestBody').val(el.data("d2"));
+  $('#taResponseHeader').val(el.data("d3"));
+  $('#taResponseBody').val(el.data("d4"));
+  $('#modal1').modal("show");
+}
+</script>
+  
+</body></html>
