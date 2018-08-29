@@ -1,3 +1,4 @@
+
 import time
 import random
 from enum import Enum
@@ -188,7 +189,7 @@ class TestCase(object):
 
 class TestStep(object):
     def __init__(self, **kwargs):
-        self._id = 'TST-%s' % time.time()
+        self.id = 'TST-%s' % time.time()
         self._test_case_id = kwargs.get('test_case_id', None)
         self._name = kwargs.get('name', None)
         self._status = kwargs.get('status', None)
